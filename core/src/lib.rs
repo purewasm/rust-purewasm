@@ -3,9 +3,12 @@
 
 extern crate alloc;
 pub mod error;
-
+pub mod codec;
 pub use lol_alloc;
 pub use serde;
+
+pub const CBOR_CODEC: u64 = 0x51; 
+pub const JSON_CODEC: u64 = 0x0200; 
 
 #[macro_export]
 macro_rules! use_purewasm {
@@ -25,3 +28,4 @@ macro_rules! use_purewasm {
         }
     };
 }
+

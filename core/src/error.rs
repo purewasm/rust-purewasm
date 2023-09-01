@@ -1,7 +1,7 @@
 use alloc::{borrow::ToOwned, collections::BTreeMap, string::String};
-use serde::{Serialize, Deserialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 enum ErrorValue {
     Boolean(bool),
@@ -9,25 +9,17 @@ enum ErrorValue {
     String(String),
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(bound = "T: Serialize + DeserializeOwned")]
-pub struct Error<T: Serialize> {
-    pure: PureError,
-    custom: Option<T>
-}
-
-#[derive(Serialize, Deserialize)]
-struct PureError {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PureError {
     code: String,
     details: BTreeMap<String, ErrorValue>,
 }
 
-impl <T> Error<T> where T : Serialize {
+impl PureError {
     pub fn new(code: &str) -> Self {
-        let pure = PureError {
+        Self {
             code: code.to_owned(),
             details: BTreeMap::new(),
-        };
-        Self { pure: pure, custom: None }
+        }
     }
 }
