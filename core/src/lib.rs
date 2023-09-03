@@ -68,7 +68,7 @@ macro_rules! use_purewasm {
                 Box::from_raw(ptr);
             }
         }
-        // For passing input
+
         #[no_mangle]
         pub extern "C" fn alloc(len: usize) -> *mut u8 {
             let mut byte_array: Vec<u8> = Vec::with_capacity(len); // Replace with your byte array data

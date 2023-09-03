@@ -1,8 +1,6 @@
-#![no_std]
-#![no_main]
+#![cfg_attr(not(test), no_main)]
+#![cfg_attr(not(test), no_std)]
 
-pub mod models;
-use crate::models::*;
 use alloc::format;
 use purewasm_bindgen::purewasm_bindgen;
 use purewasm_core::use_purewasm;
@@ -10,8 +8,8 @@ use purewasm_core::use_purewasm;
 use_purewasm!(purewasm_core, cbor);
 
 #[purewasm_bindgen]
-pub fn example(input: Input) -> PureResult<CustomResult> {
-    Ok(CustomResult {
-        msg: format!("The input code is {}", input.code),
-    })
+pub fn example(
+    input: purewasm_simple_shared::Input,
+) -> PureResult<purewasm_simple_shared::CustomResult> {
+    purewasm_simple_shared::example(input)
 }

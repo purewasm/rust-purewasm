@@ -5,3 +5,5 @@ edition = "2021"
 
 [dependencies]
 wasmtime = "12.0.1"
+purewasm-core = { version = "0.1.0", path = "../../../core", features = ["cbor"] }
+purewasm-simple-shared = { version = "0.1.0", path = "../shared" }
