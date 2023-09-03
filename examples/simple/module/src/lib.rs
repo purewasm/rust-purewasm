@@ -1,9 +1,15 @@
 #![no_std]
 #![no_main]
 
-purewasm_core::use_purewasm!();
+pub mod models;
+use crate::models::*;
+use alloc::format;
+use purewasm_core::use_purewasm;
+use purewasm_bindgen::purewasm_bindgen;
 
-#[no_mangle]
-pub unsafe extern "C" fn xyz() -> i32 {
-    6
+use_purewasm!(purewasm_core, cbor);
+
+#[purewasm_bindgen]
+pub fn example(input: Input) -> PureResult<CustomResult> {
+   Ok(CustomResult{msg: format!("The input code is {}", input.code)})
 }

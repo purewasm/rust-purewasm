@@ -12,4 +12,5 @@ strip = "symbols"
 crate-type = ["cdylib"]
 
 [dependencies]
-purewasm-core = { version = "0.1.0", path = "../../../core", features=["json"] }
+purewasm-core = { version = "0.1.0", path = "../../../core", features=["cbor"] }
+purewasm-bindgen = { version = "0.1.0", path = "../../../bindgen" }
