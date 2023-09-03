@@ -26,7 +26,7 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
             }
 
             #[no_mangle]
-            pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i64) -> (i64, i64) {
+            pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> (i32, i32) {
                 let input: Result<#input_type, PureError> = from_memory(ptr, len);
                 let result = inner::#function_name(input.unwrap());
                 to_memory(result.unwrap())

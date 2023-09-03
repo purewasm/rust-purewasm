@@ -40,7 +40,7 @@ macro_rules! use_purewasm {
             loop {}
         }
 
-        pub fn to_memory<T: Serialize>(t: T) -> (i64, i64) {
+        pub fn to_memory<T: Serialize>(t: T) -> (i32, i32) {
             let memory = WasmMemory {
                 codec: DefaultCodec,
             };
@@ -49,7 +49,7 @@ macro_rules! use_purewasm {
 
         pub unsafe fn from_memory<T: DeserializeOwned>(
             ptr: *mut u8,
-            len: i64,
+            len: i32,
         ) -> Result<T, PureError> {
             let memory = WasmMemory {
                 codec: DefaultCodec,

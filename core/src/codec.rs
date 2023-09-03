@@ -83,22 +83,28 @@ mod tests {
 
     use super::*;
     #[derive(Debug, Serialize, Deserialize)]
-    struct Abc(i32);
+    struct Input{ code: i32 }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct ExampleResult{ msg: String }
 
     #[test]
     fn cbor_test(){
         let codec = cbor::CborCodec;
-        let bytes = codec.to_bytes(Abc(3)).unwrap();
-        let abc: Abc = cbor::CborCodec::from_bytes(&bytes).unwrap();
-        eprintln!("{:?}", abc);
+        let bytes = codec.to_bytes(Input{code: 5}).unwrap();
+        let rbytes = codec.to_bytes(ExampleResult{msg: "The input code is 5".to_owned()}).unwrap();
+        //let abc: Input = cbor::CborCodec::from_bytes(&bytes).unwrap();
+        eprintln!("{:?}", bytes);
+        eprintln!("{:?}", rbytes);
+
     }
 
     
     #[test]
     fn json_test(){
         let codec = json::JsonCodec;
-        let bytes = codec.to_bytes(Abc(3)).unwrap();
-        let abc: Abc = json::JsonCodec::from_bytes(&bytes).unwrap();
+        let bytes = codec.to_bytes(Input{code:  3}).unwrap();
+        let abc: Input = json::JsonCodec::from_bytes(&bytes).unwrap();
         eprintln!("{:?}", abc);
     }
 }
