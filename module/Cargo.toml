@@ -1,0 +1,17 @@
+[package]
+name = "purewasm-module"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lol_alloc = "0.4.0"
+serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
+serde_json = { version = "1.0.105", default-features = false, features = ["alloc"], optional = true }
+ciborium = { version = "0.2.1", default-features = false, optional = true }
+
+[features]
+cbor = ["dep:ciborium"]
+json = ["dep:serde_json"]
+
+[dev-dependencies]
+purewasm-module= { path = ".", features = ["cbor", "json"] }
