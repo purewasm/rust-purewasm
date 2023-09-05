@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use crate::error::PureError;
+use purewasm_core::PureError;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub trait Codec {
@@ -15,7 +15,7 @@ pub mod json {
     use alloc::vec::Vec;
     use serde::{Serialize, de::DeserializeOwned};
 
-    use crate::error::PureError;
+    use purewasm_core::PureError;
 
     use super::Codec;
     pub struct JsonCodec;
@@ -48,7 +48,7 @@ pub mod cbor {
     use alloc::vec::Vec;
     use serde::{Serialize, de::DeserializeOwned};
 
-    use crate::error::PureError;
+    use purewasm_core::PureError;
 
     use super::Codec;
 

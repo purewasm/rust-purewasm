@@ -1,9 +1,8 @@
-#![cfg_attr(not(test), no_main)]
 #![cfg_attr(not(test), no_std)]
 
 extern crate alloc;
-use serde::{Serialize, Deserialize};
 use alloc::{borrow::ToOwned, collections::BTreeMap, string::String};
+use serde::{Deserialize, Serialize};
 
 pub type PureResult<T> = Result<T, PureError>;
 pub use serde;

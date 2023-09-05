@@ -1,4 +1,3 @@
-#![cfg_attr(not(test), no_main)]
 #![cfg_attr(not(test), no_std)]
 
 extern crate alloc;
@@ -9,10 +8,20 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct IdEvent {
+    // The time of chain, it is not real timestamp
+    timestamp: u128,
     /// Semantic version of wasm
     version: u32,
     /// Hash of wasm(context)
     version_id: Vec<u8>,
-    /// Event payload
+    /// Encoded event payload
     payload: Vec<u8>
 }
+
+pub enum State {
+    // Sha256
+    Sha256([u8; 32]),
+    // Sha512
+    Sha512([u8; 64])
+}
+ 
