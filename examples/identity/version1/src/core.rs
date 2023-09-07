@@ -12,7 +12,7 @@ pub struct IdEventBody {
     min_signer: u8, // m of n
     total_signer: u8, // total number of signers
     signers: Vec<ContentId>, // New signer ids 
-    state: State // Current state of id
+    sdt_state: State // Current state of id
 }
 
 IdSignature {
@@ -32,7 +32,7 @@ pub enum IdInput {
     Inception(IdEvent),
     Mutation {
         payload: IdEventPayload,
-        signatures: [IdSignature; MAX_SIG_SIZE]
+        signatures: Vec<IdSignature>
     }
 }
 

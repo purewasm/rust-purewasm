@@ -3,9 +3,10 @@
 extern crate alloc;
 pub mod wots;
 pub use sha2;
-use alloc::vec::Vec;
+ue alloc::vec::Vec;
 use serde::{Serialize, Deserialize};
 
+pub type IdEvent = Event<>
 #[derive(Serialize, Deserialize)]
 pub struct IdEvent {
     // The time of chain, it is not real timestamp
