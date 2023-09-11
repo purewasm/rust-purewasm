@@ -1,6 +1,6 @@
 use crate::codec::Codec;
-use purewasm_core::PureError;
-use serde::{de::DeserializeOwned, Serialize};
+use crate::error::PureError;
+use crate::serde::{de::DeserializeOwned, Serialize};
 
 pub struct WasmMemory<C: Codec> {
     pub codec: C,

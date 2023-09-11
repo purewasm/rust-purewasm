@@ -5,3 +5,7 @@ members = [
     "runtime"
 ]
 
+[profile.release]
+lto = true
+opt-level = "z"
+strip = "symbols"

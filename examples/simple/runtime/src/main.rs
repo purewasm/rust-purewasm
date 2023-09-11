@@ -25,8 +25,10 @@ fn main() {
     unsafe{
        let mem_slice = std::slice::from_raw_parts(
           memory.data_ptr(&store).offset(result_ptr as isize), result_len as usize);
-       let r: purewasm_simple_shared::CustomResult = 
-         purewasm_core::codec::cbor::CborCodec::from_bytes(mem_slice).unwrap();
+       /*let r: purewasm_simple_shared::CustomResult = 
+         purewasm_core::codec::cbor::CborCodec::from_bytes(mem_slice).unwrap();*/
+         let r: purewasm_core::result::PureResult<purewasm_simple_shared::CustomResult> = 
+         purewasm_core::codec::cbor::CborCodec::from_bytes(mem_slice);
        //println!("Len: {:?}", len_ptr);
        println!("Slice: {:?}", r);
     }

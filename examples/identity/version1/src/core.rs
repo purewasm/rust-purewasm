@@ -1,18 +1,18 @@
 #![cfg_attr(not(test), no_std)]
 
 use serde::{Serialize, Deserialize};
+type IdPublicKey = [u8; PUBKEY_SIZE];
 
 const PUBKEY_SIZE: u8 = 32;
 const SIG_SIZE: u16 = 1340;
 
-type IdPublicKey = [u8; PUBKEY_SIZE];
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct IdEventBody {
+pub struct IdInception {
     min_signer: u8, // m of n
     total_signer: u8, // total number of signers
     signers: Vec<ContentId>, // New signer ids 
-    sdt_state: State // Current state of id
+    sdt_state: ContentId // Current state of id
 }
 
 IdSignature {
@@ -22,25 +22,25 @@ IdSignature {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct IdEventPayload {
-    previous: ContentId,
-    body: IdEventBody,
+pub struct IdMutation {
+    previous: IdResult, // Previous bytes
+    min_signer: Option<u8>, // m of n
+    total_signer: Option<u8>, // total number of signers
+    new_signers: Vec<ContentId>, // New signer ids 
+    sdt_state: Option<ContentId> // Current state of id
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub enum IdInput {
-    Inception(IdEvent),
+pub enum IdEventChange {
+    Inception(IdInception),
     Mutation {
-        payload: IdEventPayload,
+        payload: IdMutation,
         signatures: Vec<IdSignature>
     }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-enum WrappedResult {
-    Version1(IdResult),
-}
-
-pub fn handle(input: IdInput) -> Result<WrappedResult>{
-    // logic
+pub struct IdEvent {
+    wam_id: ContentId,
+    change: IdEventChange
 }

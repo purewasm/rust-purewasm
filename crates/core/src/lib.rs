@@ -1,41 +1,57 @@
 #![cfg_attr(not(test), no_std)]
 
 extern crate alloc;
+pub use lol_alloc;
+pub use serde;
+pub mod codec;
+pub mod error;
+pub mod memory;
+pub mod result;
+
 use serde::{Deserialize, Serialize};
 
-pub type PureResult<T> = Result<T, PureError>;
-pub use serde;
-
-pub enum ByteValue {
-    ThirtyTwo([u8; 32]),
-    SixtyFour([u8; 64]),
-}
-
-pub struct PureEvent<P, R, S> {
-    pub wam_id: ByteValue,
-    pub payload: P,
-    pub result: R,
-    pub state: S,
-}
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-enum ErrorValue {
-    Boolean(bool),
-    Number(i32),
-    String(&'static str),
+pub enum DigestId {
+    // Sha256
+    Sha256([u8; 32]),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PureError {
-    code: &'static str,
-    details: Option<[(&'static str, ErrorValue); 4]>,
-}
+#[macro_export]
+macro_rules! use_purewasm {
+    () => {
+        extern crate alloc;
+        use alloc::{boxed::Box, vec::Vec};
+        use $crate::codec::cbor::CborCodec as DefaultCodec;
+        use $crate::serde::{de::DeserializeOwned, Serialize};
+        use $crate::{codec::Codec, error::PureError, memory::WasmMemory, result::PureResult};
 
-impl PureError {
-    pub fn new(code: &'static str) -> Self {
-        Self {
-            code: code,
-            details: None,
+        #[cfg(target_arch = "wasm32")]
+        use $crate::lol_alloc::{AssumeSingleThreaded, FreeListAllocator};
+
+        #[cfg(target_arch = "wasm32")]
+        #[global_allocator]
+        static ALLOCATOR: AssumeSingleThreaded<FreeListAllocator> =
+            unsafe { AssumeSingleThreaded::new(FreeListAllocator::new()) };
+
+        #[cfg(not(test))]
+        #[panic_handler]
+        fn panic(_info: &core::panic::PanicInfo) -> ! {
+            loop {}
         }
-    }
+
+        #[no_mangle]
+        pub extern "C" fn alloc(len: usize) -> *mut u8 {
+            let mut byte_array: Vec<u8> = Vec::with_capacity(len);
+            let ptr = byte_array.as_mut_ptr();
+            core::mem::forget(ptr);
+            ptr
+        }
+
+        #[no_mangle]
+        pub extern "C" fn de_alloc(ptr: *mut u8) {
+            unsafe {
+                Box::from_raw(ptr);
+            }
+        }
+    };
 }

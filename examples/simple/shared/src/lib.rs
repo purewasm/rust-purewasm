@@ -16,7 +16,7 @@ pub struct CustomResult {
     pub msg: String,
 }
 
-pub fn example(input: Input) -> purewasm_core::PureResult<CustomResult> {
+pub fn example(input: Input) -> purewasm_core::result::PureResult<CustomResult> {
     Ok(CustomResult {
         msg: format!("The input code is {}", input.code),
     })

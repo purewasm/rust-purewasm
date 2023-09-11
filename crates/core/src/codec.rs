@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use purewasm_core::PureError;
+use crate::error::PureError;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub trait Codec {
@@ -15,7 +15,7 @@ pub mod json {
     use alloc::vec::Vec;
     use serde::{Serialize, de::DeserializeOwned};
 
-    use purewasm_core::PureError;
+    use crate::error::PureError;
 
     use super::Codec;
     pub struct JsonCodec;
@@ -48,7 +48,7 @@ pub mod cbor {
     use alloc::vec::Vec;
     use serde::{Serialize, de::DeserializeOwned};
 
-    use purewasm_core::PureError;
+    use crate::error::PureError;
 
     use super::Codec;
 
@@ -79,13 +79,16 @@ pub mod cbor {
 
 #[cfg(test)]
 mod tests {
-    use serde::Deserialize;
+
+    use purewasm_core::serde::Deserialize;
 
     use super::*;
     #[derive(Debug, Serialize, Deserialize)]
+    #[serde(crate = "purewasm_core::serde")]
     struct Input{ code: i32 }
 
     #[derive(Debug, Serialize, Deserialize)]
+    #[serde(crate = "purewasm_core::serde")]
     struct ExampleResult{ msg: String }
 
     #[test]
