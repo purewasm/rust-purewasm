@@ -66,9 +66,6 @@ pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
             payload, 
             signatures
         } => {
-           payload.previous -> id, get signers, min, total, sdt_state
-           verify signatures -> 
-           verify signers
            if signatures.len() < payload.previous.min_signer {
               return Err(PureError::new("MIN_SIGNATURE"))
            }
@@ -90,7 +87,7 @@ pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
               event_id: input.event.get_id(),
               min_signer: payload.min_signer ?? payload.previous.min_signer,
               total_signer: payload.total_signer ?? payload.previous.total_signer,
-              signers: signatures.signers + payload.signers, 
+              signers: new_signers, 
               sdt_state: payload.sdt_state ?? payload.previous.sdt_state
            };
            result 
@@ -98,7 +95,7 @@ pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
     }
     let bytes = encode(result);
     let wrapped = WrappedResult {
-       wam_id: input.wam_id,
+       wasm_id: input.wasm_id,
        result: bytes
     };
     Ok(wrapped)

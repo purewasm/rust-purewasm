@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/core",
-    "crates/bindgen"
+    "crates/bindgen",
+    "crates/wasmid"
 ]
 exclude = ["examples/*"]

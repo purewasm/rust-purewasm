@@ -54,7 +54,7 @@ pub mod cbor {
 
     pub struct CborCodec;
 
-    impl Codec for CborCodec{
+    impl Codec for CborCodec {
         fn get_code(&self) -> i64 {
            0x51
         }

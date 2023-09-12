@@ -8,6 +8,7 @@ pub mod codec;
 pub mod error;
 pub mod memory;
 pub mod event;
+pub mod serde_utils;
 
 pub type PureResult<T> = Result<T, error::PureError>;
 
@@ -18,7 +19,7 @@ macro_rules! use_purewasm {
         use alloc::{boxed::Box, vec::Vec};
         use $crate::codec::cbor::CborCodec as DefaultCodec;
         use $crate::serde::{de::DeserializeOwned, Serialize};
-        use $crate::{codec::Codec, error::PureError, memory::WasmMemory, result::PureResult};
+        use $crate::{codec::Codec, error::PureError, memory::WasmMemory, PureResult};
 
         #[cfg(target_arch = "wasm32")]
         use $crate::lol_alloc::{AssumeSingleThreaded, FreeListAllocator};
