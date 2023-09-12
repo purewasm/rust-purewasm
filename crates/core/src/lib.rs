@@ -2,19 +2,14 @@
 
 extern crate alloc;
 pub use lol_alloc;
+pub mod id;
 pub use serde;
 pub mod codec;
 pub mod error;
 pub mod memory;
-pub mod result;
+pub mod event;
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum DigestId {
-    // Sha256
-    Sha256([u8; 32]),
-}
+pub type PureResult<T> = Result<T, error::PureError>;
 
 #[macro_export]
 macro_rules! use_purewasm {
