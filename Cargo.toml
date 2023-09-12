@@ -5,3 +5,8 @@ members = [
     "crates/wasmid"
 ]
 exclude = ["examples/*"]
+
+[profile.release]
+lto = true
+opt-level = "z"
+strip = "symbols"

@@ -7,7 +7,7 @@ pub mod current {
         id::DigestId,
     };
 
-    use crate::core::{IdEventResult, IdMutation, IdSignature};
+    use crate::model::{IdEventResult, IdMutation, IdSignature};
 
     pub fn resolve(
         payload: IdMutation,
@@ -42,7 +42,7 @@ pub mod fake {
         id::DigestId,
     };
 
-    use crate::core::{IdEventResult, IdMutation, IdSignature};
+    use crate::model::{IdEventResult, IdMutation, IdSignature};
 
     pub fn resolve(
         payload: IdMutation,
