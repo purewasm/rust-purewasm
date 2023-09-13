@@ -12,5 +12,8 @@ strip = "symbols"
 crate-type = ["cdylib"]
 
 [dependencies]
-purewasm-core = { version = "0.1.0", path = "../core", features=["cbor"] }
+purewasm-core = { version = "0.1.0", path = "../core" }
+purewasm-alloc = { version = "0.1.0", path = "../alloc" }
+purewasm-event = { version = "0.1.0", path = "../event" }
 purewasm-bindgen = { version = "0.1.0", path = "../bindgen" }
+ciborium = { version = "0.2.1", default-features = false }

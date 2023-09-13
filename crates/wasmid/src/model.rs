@@ -1,10 +1,10 @@
 use alloc::{collections::BTreeMap, vec::Vec};
 use purewasm_core::{
-    event::WrappedResult,
     id::DigestId,
     serde::{Deserialize, Serialize},
     serde_utils::serde_bytes_array,
 };
+use purewasm_event::WrappedResult;
 
 
 const PUBKEY_SIZE: usize = 32;

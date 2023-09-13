@@ -1,6 +1,8 @@
 [workspace]
 members = [
     "crates/core",
+    "crates/event",
+    "crates/alloc",
     "crates/bindgen",
     "crates/wasmid"
 ]
