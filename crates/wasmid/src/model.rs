@@ -1,14 +1,11 @@
 use alloc::{collections::BTreeMap, vec::Vec};
 use purewasm_core::{
-    codec::{cbor::CborCodec, Codec},
-    error::PureError,
-    event::{EventResult, GenericEvent, WrappedResult},
+    event::WrappedResult,
     id::DigestId,
     serde::{Deserialize, Serialize},
     serde_utils::serde_bytes_array,
 };
 
-use crate::impls;
 
 const PUBKEY_SIZE: usize = 32;
 const SIG_SIZE: usize = 1340;
@@ -17,10 +14,10 @@ pub type IdPublicKey = [u8; PUBKEY_SIZE];
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "purewasm_core::serde")]
 pub struct IdInception {
-    min_signer: u8,         // m of n
-    total_signer: u8,       // total number of signers
-    signers: Vec<DigestId>, // New signer ids
-    sdt_state: DigestId,    // Current state of id
+    pub min_signer: u8,         // m of n
+    pub total_signer: u8,       // total number of signers
+    pub signers: Vec<DigestId>, // New signer ids
+    pub sdt_state: DigestId,    // Current state of id
 }
 
 impl IdInception {
@@ -31,7 +28,7 @@ impl IdInception {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "purewasm_core::serde")]
-pub struct IdMutation {
+pub struct IdMutationPayload {
     pub previous: WrappedResult,                   // wam_id, bytes
     pub min_signer: Option<u8>,                    // m of n
     pub total_signer: Option<u8>,                  // total number of signers
@@ -51,12 +48,16 @@ pub struct IdSignature {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(crate = "purewasm_core::serde")]
+pub struct IdMutation {
+    pub payload: IdMutationPayload,
+    pub signatures: Vec<IdSignature>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(crate = "purewasm_core::serde")]
 pub enum IdEventKind {
     Inception(IdInception),
-    Mutation {
-        payload: IdMutation,
-        signatures: Vec<IdSignature>,
-    },
+    Mutation(IdMutation)
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -68,38 +69,4 @@ pub struct IdEventResult {
     pub total_signer: u8,
     pub signers: Vec<DigestId>,
     pub sdt_state: DigestId,
-}
-
-pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
-    let result = match input.event {
-        IdEventKind::Inception(inception) => {
-            let result = IdEventResult {
-                id: inception.get_id(),
-                event_id: inception.get_id(),
-                min_signer: inception.min_signer,
-                total_signer: inception.total_signer,
-                signers: inception.signers,
-                sdt_state: inception.sdt_state,
-            };
-            result
-        }
-        IdEventKind::Mutation {
-            payload,
-            signatures,
-        } => {
-            if payload.previous.wasm_id == input.wasm_id {
-                impls::current::resolve(payload, signatures)?
-            }else {
-                impls::fake::resolve(payload, signatures)?
-                //return Err(PureError::new("NOT_SUPPORTED"));
-            }
-        }
-    };
-    
-    let bytes = CborCodec.to_bytes(result)?;
-    let wrapped = WrappedResult {
-       wasm_id: input.wasm_id,
-       result: bytes
-    };
-    Ok(wrapped)
 }

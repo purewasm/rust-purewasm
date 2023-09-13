@@ -1,1 +1,0 @@
-pub static VERSION1: [u8; 32] = [0u8; 32];
