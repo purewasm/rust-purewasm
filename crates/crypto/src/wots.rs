@@ -1,5 +1,13 @@
-use purewasm_core::sha2::{digest::Digest, Sha256};
-
+use sha2::{digest::Digest, Sha256};
+// These are the parameters that define LDWM_SHA256_M20_W8 (cf. §3.2 and §3.3). It should be ok to
+// change them to values of other LDWM variants as described in the spec, but there are no tests
+// for that.
+//
+// Originally I had planned to make Winternitz accept different parameters without editing the
+// source, however because of Rust issue #34344, it's not really possible to do this without using
+// a macro, which would have made the code much less clear.
+//
+// the length in bytes of each element of an LDWM signature
 const PARAMETER_M: usize = 20;
 // the length in bytes of the result of the hash function
 const PARAMETER_N: usize = 32;
@@ -9,10 +17,6 @@ const PARAMETER_W: usize = 4;
 const PARAMETER_P: usize = 67;
 // the number of left-shift bits used in the checksum function C
 const PARAMETER_LS: usize = 4;
-// a collision-resistant hash function implementing `crypto::digest::Digest`
-type ParameterH = Sha256;
-// a one way (preimage resistant) hash function implementing `crypto::digest::Digest`
-type ParameterF = Sha256;
 
 /// The size (in bytes) of a public key
 pub const PUBKEY_SIZE: usize = PARAMETER_N;
@@ -106,7 +110,7 @@ pub fn verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<bool, &'static st
     }
 
     // V = ( H(message) || C(H(message)) )
-    let h_m: [u8; PARAMETER_N] = ParameterH::digest(msg).try_into().unwrap();
+    let h_m: [u8; PARAMETER_N] = Sha256::digest(msg).try_into().unwrap();
     let mut v = [0; PARAMETER_N + 2];
     {
         let (left, mut right) = v.split_at_mut(PARAMETER_N);
@@ -115,25 +119,23 @@ pub fn verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<bool, &'static st
         right.copy_from_slice(&cs.to_be_bytes());
     }
 
-    let mut inner_hasher = ParameterF::new();
-    let mut outer_hasher = ParameterH::new();
+    let mut outer_hasher = Sha256::new();
     for (i, z_i_long) in sig.chunks(PARAMETER_M).enumerate() {
         let a = 2u8.pow(PARAMETER_W as u32) - 1 - coef(&v, i, PARAMETER_W);
         let mut z_i = [0; PARAMETER_M];
         z_i.copy_from_slice(&z_i_long[..PARAMETER_M]);
         for _ in 0..a {
-            inner_hasher.reset();
-            inner_hasher.input(&z_i);
+            let mut inner_hasher = Sha256::new();
+            inner_hasher.update(&z_i);
             let mut z_i_long = [0; PARAMETER_N];
-            inner_hasher.result(&mut z_i_long);
+            z_i_long.copy_from_slice(&inner_hasher.finalize());
             z_i.copy_from_slice(&z_i_long[..PARAMETER_M]);
         }
-        outer_hasher.input(&z_i);
-
+        outer_hasher.update(&z_i);
     }
 
     let mut hash = [0; PARAMETER_N];
-    outer_hasher.result(&mut hash);
+    hash.copy_from_slice(&outer_hasher.finalize());
 
     if hash == pubkey {
         Ok(true)
@@ -142,146 +144,10 @@ pub fn verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<bool, &'static st
     }
 }
 
-#[cfg(test)]
-pub mod util {
-    use super::*;
-    extern crate std;
-
-    use std::error::Error;
-    use std::str;
-    /// Generate a public key from private entropy `privkey`.
-    pub fn derive_pubkey(privkey: &[u8], pubkey: &mut [u8]) -> Result<(), &'static str> {
-        // This is defined in §3.5.
-    
-        assert!(PARAMETER_N >= PARAMETER_M);
-    
-        if privkey.len() != PRIVKEY_SIZE {
-            Err("privkey is of incorrect length")?;
-        }
-    
-        if pubkey.len() != PUBKEY_SIZE {
-            Err("pubkey is of incorrect length")?;
-        }
-    
-        let mut inner_hasher = ParameterF::new();
-        let mut outer_hasher = ParameterH::new();
-        assert!(inner_hasher.output_bytes() >= PARAMETER_M);
-        assert_eq!(outer_hasher.output_bytes(), PARAMETER_N);
-    
-        let e = 2u32.pow(PARAMETER_W as u32) - 1;
-        // for ( i = 0; i < p; i = i + 1 ) {
-        for x_i in privkey.chunks(PARAMETER_N) {
-            let mut y_i = [0; PARAMETER_M];
-            y_i.copy_from_slice(&x_i[..PARAMETER_M]);
-    
-            // y[i] = F^e(x[i])
-            for _ in 0..e {
-                inner_hasher.reset();
-    
-                let mut y_i_untruncated = [0; PARAMETER_N];
-                inner_hasher.input(&y_i);
-                inner_hasher.result(&mut y_i_untruncated);
-    
-                y_i.copy_from_slice(&y_i_untruncated[..PARAMETER_M]);
-            }
-    
-            // This corresponds to the y[i] part of H(y[0] || y[1] || ... || y[p-1])
-            outer_hasher.input(&y_i);
-    
-            // PoQua compatibility
-            if cfg!(feature="poqua-token") {
-                outer_hasher.input(&[0; 32 - PARAMETER_M]);
-            }
-        }
-    
-        outer_hasher.result(pubkey);
-        Ok(())
-    }
-    
-
-    /// Sign a message `msg` with `privkey`, returning the signature.
-    pub fn sign(privkey: &[u8], msg: &[u8], sig: &mut [u8]) -> Result<(), &'static str> {
-        if privkey.len() != PRIVKEY_SIZE {
-            Err("privkey is of incorrect length")?;
-        }
-        if sig.len() != SIG_SIZE {
-            Err("sig is of incorrect length")?;
-        }
-    
-        assert!(PARAMETER_N >= PARAMETER_M);
-    
-        // V = ( H(message) || C(H(message)) )
-        let mut h_m = [0; PARAMETER_N];
-        let mut hasher = ParameterH::new();
-        assert_eq!(hasher.output_bytes(), PARAMETER_N);
-        hasher.input(msg);
-        hasher.result(&mut h_m);
-        let mut v = [0; PARAMETER_N+2];
-        v[..PARAMETER_N].copy_from_slice(&h_m);
-        v.split_at_mut(PARAMETER_N).1.write_u16::<BigEndian>(checksum(&h_m)).unwrap();
-    
-        let mut hasher = ParameterF::new();
-        for ((i, y_i_long), sig_i) in privkey.chunks(PARAMETER_N).enumerate().zip(sig.chunks_mut(PARAMETER_M)) {
-            let a = coef(&v, i, PARAMETER_W);
-            let mut y_i = [0; PARAMETER_M];
-            y_i.copy_from_slice(&y_i_long[..PARAMETER_M]);
-            for _ in 0..a {
-                hasher.reset();
-                hasher.input(&y_i);
-                let mut y_i_long = [0; PARAMETER_N];
-                hasher.result(&mut y_i_long);
-                y_i.copy_from_slice(&y_i_long[..PARAMETER_M]);
-            }
-            sig_i.copy_from_slice(&y_i);
-        }
-    
-        Ok(())
-    }
-    /// Format a string of bytes into a hex string.
-    pub fn format_bytes(bytes: &[u8]) -> String {
-        let mut s = String::from("0x");
-        for b in bytes {
-            s.push_str(&format!("{:02x}", b));
-        }
-        s
-    }
-
-    /// Change a formatted bytestring into a string of bytes.
-    pub fn deformat_bytes(bytestr: &str) -> Result<Vec<u8>, Box<dyn Error>> {
-        let mut out = Vec::new();
-
-        if bytestr.is_empty() || bytestr == "0x" {
-            return Ok(out);
-        }
-
-        if bytestr.len() % 2 != 0 {
-            Err("invalid bytestr length")?;
-        }
-
-        let bs = match &bytestr[0..2] {
-            "0x" => {
-                if bytestr.len() < 4 {
-                    Err("invalid bytestr")?;
-                }
-                &bytestr[2..]
-            }
-            _ => bytestr,
-        };
-
-        for c in bs.as_bytes().chunks(2) {
-            let v = str::from_utf8(c)?;
-            out.push(u8::from_str_radix(v, 16)?);
-        }
-
-        Ok(out)
-    }
-}
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use util::*;
     // This is the OTS Private Key 0 defined in §B.2 Table 4
     const OTS_PRIVKEY_0: &[u8] = &[
         0xbf, 0xb7, 0x57, 0x38, 0x3f, 0xb0, 0x8d, 0x32, 0x46, 0x29, 0x11, 0x5a, 0x84, 0xda, 0xf0,
@@ -533,6 +399,128 @@ mod tests {
     const MSG: &[u8] = &[
         0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21, 0x0a,
     ];
+
+    /// Generate a public key from private entropy `privkey`.
+    ///
+    /// # Arguments
+    ///
+    /// * `privkey` is private entropy that must have length of `PRIVKEY_SIZE`
+    /// * `pubkey` is a mutable slice of size `PUBKEY_SIZE`, which we will clobber with the public key
+    ///
+    /// # Returns
+    ///
+    /// This function returns the generated public key `Ok(())` on success, or an `Err` if `privkey` is
+    /// of incorrect length.
+    pub fn derive_pubkey(privkey: &[u8], pubkey: &mut [u8]) -> Result<(), &'static str> {
+        // This is defined in §3.5.
+
+        assert!(PARAMETER_N >= PARAMETER_M);
+
+        if privkey.len() != PRIVKEY_SIZE {
+            Err("privkey is of incorrect length")?;
+        }
+
+        if pubkey.len() != PUBKEY_SIZE {
+            Err("pubkey is of incorrect length")?;
+        }
+
+        let mut outer_hasher = Sha256::new();
+        //assert!(inner_hasher.output_bytes() >= PARAMETER_M);
+        //assert_eq!(outer_hasher.output_bytes(), PARAMETER_N);
+
+        let e = 2u32.pow(PARAMETER_W as u32) - 1;
+        // for ( i = 0; i < p; i = i + 1 ) {
+        for x_i in privkey.chunks(PARAMETER_N) {
+            let mut y_i = [0; PARAMETER_M];
+            y_i.copy_from_slice(&x_i[..PARAMETER_M]);
+
+            // y[i] = F^e(x[i])
+            for _ in 0..e {
+                let mut inner_hasher = Sha256::new();
+
+                let mut y_i_untruncated = [0; PARAMETER_N];
+                inner_hasher.update(&y_i);
+                y_i_untruncated.copy_from_slice(&inner_hasher.finalize());
+
+                y_i.copy_from_slice(&y_i_untruncated[..PARAMETER_M]);
+            }
+
+            // This corresponds to the y[i] part of H(y[0] || y[1] || ... || y[p-1])
+            outer_hasher.update(&y_i);
+
+            // PoQua compatibility
+            if cfg!(feature = "poqua-token") {
+                outer_hasher.update(&[0; 32 - PARAMETER_M]);
+            }
+        }
+        pubkey.copy_from_slice(&outer_hasher.finalize());
+        Ok(())
+    }
+
+    /// Sign a message `msg` with `privkey`, returning the signature.
+    ///
+    /// # Arguments
+    ///
+    /// * `privkey` is private entropy that must have length of `PRIVKEY_SIZE`
+    /// * `msg` is the message to be signed. It may have any length.
+    /// * `sig` is a mutable slice of size `SIG_SIZE`, which we will clobber with the signature
+    ///
+    /// # Danger
+    ///
+    /// Calling this function more than once with the same `privkey` can reveal the value of
+    /// `privkey`!
+    ///
+    /// # Returns
+    ///
+    /// This function returns the signature `Ok(())` on success, or an `Err` if `privkey` or `sig` is of
+    /// an incorrect length.
+    pub fn sign(privkey: &[u8], msg: &[u8], sig: &mut [u8]) -> Result<(), &'static str> {
+        if privkey.len() != PRIVKEY_SIZE {
+            Err("privkey is of incorrect length")?;
+        }
+        if sig.len() != SIG_SIZE {
+            Err("sig is of incorrect length")?;
+        }
+
+        assert!(PARAMETER_N >= PARAMETER_M);
+
+        // V = ( H(message) || C(H(message)) )
+        let mut h_m = [0; PARAMETER_N];
+        let mut hasher = Sha256::new();
+        //assert_eq!(hasher.output_bytes(), PARAMETER_N);
+        hasher.update(msg);
+        h_m.copy_from_slice(&hasher.finalize());
+        let mut v = [0; PARAMETER_N + 2];
+        v[..PARAMETER_N].copy_from_slice(&h_m);
+
+        v.split_at_mut(PARAMETER_N)
+            .1
+            .copy_from_slice(&checksum(&h_m).to_be_bytes());
+        //.write_u16::<BigEndian>()
+        //.unwrap();
+
+        let mut hasher = Sha256::new();
+        for ((i, y_i_long), sig_i) in privkey
+            .chunks(PARAMETER_N)
+            .enumerate()
+            .zip(sig.chunks_mut(PARAMETER_M))
+        {
+            let a = coef(&v, i, PARAMETER_W);
+            let mut y_i = [0; PARAMETER_M];
+            y_i.copy_from_slice(&y_i_long[..PARAMETER_M]);
+            for _ in 0..a {
+                let mut hasher = Sha256::new();
+                hasher.update(&y_i);
+                let mut y_i_long = [0; PARAMETER_N];
+                y_i_long.copy_from_slice(&hasher.finalize());
+                y_i.copy_from_slice(&y_i_long[..PARAMETER_M]);
+            }
+            sig_i.copy_from_slice(&y_i);
+        }
+
+        Ok(())
+    }
+
     #[test]
     fn test_coef() {
         let a = [0x8c, 0x9f, 0xa4, 0xba, 0xa8];
@@ -552,7 +540,7 @@ mod tests {
         assert_eq!(0b00, coef(&a, 9, 1));
         assert_eq!(0b01, coef(&a, 5, 1));
     }
-    
+
     #[test]
     fn test_checksum() {
         let msg = [
@@ -560,15 +548,14 @@ mod tests {
         ];
         let mut hash = [0; 32];
         let mut hasher = Sha256::new();
-        hasher.input(&msg);
-        hasher.result(&mut hash);
+        hasher.update(&msg);
+        hash.copy_from_slice(&hasher.finalize());
         let cs = checksum(&hash);
         // It looks like PARAMETER_LS is set to 0 in §B.3 where this test case is provided.
         assert_eq!(cs, 0x1cc << 4);
     }
-    
+
     #[test]
-    #[cfg(not(feature = "poqua-token"))]
     fn test_derive_pubkey() {
         let mut pubkey = [0; PUBKEY_SIZE];
         derive_pubkey(OTS_PRIVKEY_0, &mut pubkey).unwrap();
@@ -576,7 +563,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "poqua-token"))]
     fn test_sign() {
         let privkey = OTS_PRIVKEY_0;
         let mut sig = [0; SIG_SIZE];

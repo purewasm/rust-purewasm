@@ -1,12 +1,8 @@
 [package]
-name = "purewasm-core"
+name = "purewasm-misc"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-purewasm-bindgen= { path = "bindgen" }
-lol_alloc = "0.4.0"
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
-
-[dev-dependencies]
-purewasm-core = { path = "."}
+serde_bytes = { version = "0.11.12", default-features = false, features=["alloc"] }

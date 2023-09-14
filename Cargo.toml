@@ -1,12 +1,15 @@
 [workspace]
 members = [
     "crates/core",
-    "crates/event",
-    "crates/alloc",
-    "crates/bindgen",
-    "crates/wasmid"
+    "crates/crypto",
+    "crates/misc",
+    "wasmid"
 ]
 exclude = ["examples/*"]
+
+[workspace.dependencies]
+sha2 = { version = "0.10.7", default-features = false }
+serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
 
 [profile.release]
 lto = true

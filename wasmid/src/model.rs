@@ -1,18 +1,9 @@
 use alloc::{collections::BTreeMap, vec::Vec};
-use purewasm_core::{
-    id::DigestId,
-    serde::{Deserialize, Serialize},
-    serde_utils::serde_bytes_array,
-};
-use purewasm_event::WrappedResult;
-
-
-const PUBKEY_SIZE: usize = 32;
-const SIG_SIZE: usize = 1340;
-pub type IdPublicKey = [u8; PUBKEY_SIZE];
+use purewasm_crypto::{id::DigestId, verification::{IdPublicKeyKind, IdSignatureKind}};
+use serde::{Deserialize, Serialize};
+use crate::event::WrappedResult;
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "purewasm_core::serde")]
 pub struct IdInception {
     pub min_signer: u8,         // m of n
     pub total_signer: u8,       // total number of signers
@@ -27,7 +18,6 @@ impl IdInception {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "purewasm_core::serde")]
 pub struct IdMutationPayload {
     pub previous: WrappedResult,                   // wam_id, bytes
     pub min_signer: Option<u8>,                    // m of n
@@ -37,33 +27,28 @@ pub struct IdMutationPayload {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "purewasm_core::serde")]
 pub struct IdSignature {
     pub signer_id: DigestId,
-    pub signer_pk: IdPublicKey,
+    pub signer_pk: IdPublicKeyKind,
     pub next_signer_id: DigestId,
-    #[serde(with = "serde_bytes_array")]
-    pub sig_bytes: [u8; SIG_SIZE],
+    pub sig_bytes: IdSignatureKind,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "purewasm_core::serde")]
 pub struct IdMutation {
     pub payload: IdMutationPayload,
     pub signatures: Vec<IdSignature>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "purewasm_core::serde")]
 pub enum IdEventKind {
     Inception(IdInception),
     Mutation(IdMutation)
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(crate = "purewasm_core::serde")]
 pub struct IdEventResult {
-    pub  id: DigestId,
+    pub id: DigestId,
     pub event_id: DigestId,
     pub min_signer: u8,
     pub total_signer: u8,

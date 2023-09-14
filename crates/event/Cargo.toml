@@ -1,7 +1,0 @@
-[package]
-name = "purewasm-event"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-purewasm-core = { version = "0.1.0", path = "../core" }

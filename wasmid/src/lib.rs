@@ -3,9 +3,9 @@
 mod model;
 mod handler;
 mod codec;
-use purewasm_bindgen::purewasm_bindgen;
-use purewasm_alloc::use_purewasm;
-use purewasm_event::{EventResult, GenericEvent};
+mod event;
+use purewasm_core::{use_purewasm, purewasm_bindgen};
+use event::{EventResult, GenericEvent};
 use model::IdEventKind;
 
 use_purewasm!();

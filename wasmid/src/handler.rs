@@ -1,10 +1,10 @@
-use purewasm_core::{
-    codec::Codec,
-    error::PureError,
-};
-use purewasm_event::{EventResult, GenericEvent, WrappedResult};
+use crate::event::{EventResult, GenericEvent, WrappedResult};
+use purewasm_core::{codec::Codec, error::PureError};
 
-use crate::{model::{IdEventKind, IdEventResult}, codec::CborCodec};
+use crate::{
+    codec::CborCodec,
+    model::{IdEventKind, IdEventResult},
+};
 
 pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
     let result = match input.event {
@@ -39,13 +39,13 @@ pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
 pub mod current {
     use alloc::vec::Vec;
 
-    use purewasm_core::{
-        codec::Codec,
-        error::PureError,
-        id::DigestId,
-    };
+    use purewasm_core::{codec::Codec, error::PureError};
+    use purewasm_crypto::id::DigestId;
 
-    use crate::{model::{IdEventResult, IdMutationPayload, IdSignature}, codec::CborCodec};
+    use crate::{
+        codec::CborCodec,
+        model::{IdEventResult, IdMutationPayload, IdSignature},
+    };
 
     pub fn resolve(
         payload: IdMutationPayload,

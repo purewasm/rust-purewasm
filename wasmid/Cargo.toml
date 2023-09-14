@@ -1,0 +1,18 @@
+[package]
+name = "wasmid"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = true
+opt-level = "z"
+strip = "symbols"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+purewasm-core = { version = "0.1.0", path = "../crates/core" }
+purewasm-crypto = { version = "0.1.0", path = "../crates/crypto" }
+serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
+ciborium = { version = "0.2.1", default-features = false }
