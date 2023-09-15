@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), no_std)]
+extern crate alloc;
 use alloc::{borrow::ToOwned, collections::BTreeMap, string::String};
 use serde::{Deserialize, Serialize};
 

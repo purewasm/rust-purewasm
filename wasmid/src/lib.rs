@@ -1,17 +1,18 @@
 #![no_main]
 #![cfg_attr(not(test), no_std)]
-mod model;
-mod handler;
 mod codec;
+mod contants;
 mod event;
-use purewasm_core::{use_purewasm, purewasm_bindgen};
-use event::{EventResult, GenericEvent};
+mod handler;
+mod model;
+use event::{GenericEvent, WrappedResult};
 use model::IdEventKind;
+use purewasm_core::{purewasm_bindgen, use_purewasm};
 
 use_purewasm!();
 use crate::codec::CborCodec as DefaultCodec;
 
 #[purewasm_bindgen]
-pub fn handle_event(input: GenericEvent<IdEventKind>) -> EventResult {
+pub fn handle_event(input: GenericEvent<IdEventKind>) -> PureResult<WrappedResult> {
     handler::handle(input)
 }

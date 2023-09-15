@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use alloc::vec::Vec;
+use serde::{Deserialize, Serialize};
+use sha2::{digest::Digest, Sha256};
 
 #[derive(Debug, PartialEq, PartialOrd, Eq, Ord, Serialize, Deserialize)]
 pub enum DigestId {
@@ -7,10 +7,15 @@ pub enum DigestId {
 }
 
 impl DigestId {
-    pub fn to_bytes(&self) -> Vec<u8> {
-        use sha2::digest::Digest;
-        //use sha2::digest::Update;
-        let hasher: [u8;32] =sha2::Sha256::digest(&[0u8;32]).try_into().unwrap();
-        todo!()
+    pub fn ensure(&self, content: &[u8]) -> Result<(), &'static str> {
+        match self {
+            DigestId::Sha256(digest) => {
+                let expected: [u8; 32] = Sha256::digest(content).try_into().map_err(|_| "HASH_ERROR")?;
+                if &expected == digest {
+                    return Err("DIGEST_ERROR")
+                }
+            }
+        }
+        Ok(())
     }
 }

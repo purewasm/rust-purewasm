@@ -2,19 +2,19 @@
 
 extern crate alloc;
 pub mod codec;
-pub mod error;
 pub mod memory;
 pub use lol_alloc;
 pub use serde;
-pub type PureResult<T> = Result<T, error::PureError>;
+pub type PureResult<T> = Result<T, purewasm_error::PureError>;
 pub use purewasm_bindgen::purewasm_bindgen;
 #[macro_export]
 macro_rules! use_purewasm {
     () => {
         extern crate alloc;
+        use purewasm_error::PureError;
         use alloc::{boxed::Box, vec::Vec};
         use $crate::serde::{de::DeserializeOwned, Serialize};
-        use $crate::{codec::Codec, error::PureError, memory::WasmMemory, PureResult};
+        use $crate::{codec::Codec, memory::WasmMemory, PureResult};
 
         #[cfg(target_arch = "wasm32")]
         use $crate::lol_alloc::{AssumeSingleThreaded, FreeListAllocator};

@@ -12,7 +12,8 @@ strip = "symbols"
 crate-type = ["cdylib"]
 
 [dependencies]
-purewasm-core = { version = "0.1.0", path = "../crates/core" }
-purewasm-crypto = { version = "0.1.0", path = "../crates/crypto" }
+purewasm-core = {path = "../crates/core" }
+purewasm-error = {path = "../crates/error" }
+purewasm-crypto = { path = "../crates/crypto" }
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
 ciborium = { version = "0.2.1", default-features = false }

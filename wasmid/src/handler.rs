@@ -1,12 +1,13 @@
-use crate::event::{EventResult, GenericEvent, WrappedResult};
-use purewasm_core::{codec::Codec, error::PureError};
+use crate::{event::{ GenericEvent, WrappedResult}, contants::error_codes};
+use purewasm_core::{codec::Codec, PureResult};
+use  purewasm_error::PureError;
 
 use crate::{
     codec::CborCodec,
     model::{IdEventKind, IdEventResult},
 };
 
-pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
+pub fn handle(input: GenericEvent<IdEventKind>) -> PureResult<WrappedResult>  {
     let result = match input.event {
         IdEventKind::Inception(inception) => {
             let result = IdEventResult {
@@ -20,17 +21,18 @@ pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
             result
         }
         IdEventKind::Mutation(mutation) => {
-            if mutation.payload.previous.wasm_id == input.wasm_id {
-                current::resolve(mutation.payload, mutation.signatures)?
+            // Check previous context is same with current
+            if mutation.payload.previous.context == input.context {
+                current::handle(mutation.payload, mutation.signatures)?
             } else {
-                return Err(PureError::new("NOT_SUPPORTED"));
+                return Err(PureError::new(error_codes::UNKNOWN_CONTEXT));
             }
         }
     };
 
     let bytes = CborCodec.to_bytes(result)?;
     let wrapped = WrappedResult {
-        wasm_id: input.wasm_id,
+        context: input.context,
         result: bytes,
     };
     Ok(wrapped)
@@ -39,34 +41,43 @@ pub fn handle(input: GenericEvent<IdEventKind>) -> EventResult {
 pub mod current {
     use alloc::vec::Vec;
 
-    use purewasm_core::{codec::Codec, error::PureError};
+    use purewasm_core::codec::Codec;
+    use purewasm_error::PureError;
     use purewasm_crypto::id::DigestId;
 
     use crate::{
         codec::CborCodec,
+        contants::error_codes,
         model::{IdEventResult, IdMutationPayload, IdSignature},
     };
 
-    pub fn resolve(
+    pub fn handle(
         payload: IdMutationPayload,
         signatures: Vec<IdSignature>,
     ) -> Result<IdEventResult, PureError> {
         let previous: IdEventResult = CborCodec::from_bytes(&payload.previous.result)?;
         if signatures.len() < previous.min_signer as usize {
-            return Err(PureError::new("MIN_SIGNATURE"));
+            return Err(PureError::new(error_codes::MIN_SIGNATURE_NOT_MATCH));
         }
         let mut new_signers: Vec<DigestId> = Vec::new();
-        /*for sig in signatures {
-            sig.signer_id.ensure(sig.signer_pk);
-            if !previous.signers.contain(sig.signer_id) {
+        for sig in signatures {
+            sig.signer_id
+                .ensure(&sig.signer_pk.to_bytes())
+                .map_err(|err| PureError::new(err))?;
+            if !previous.signers.contains(&sig.signer_id) {
                 return Err(PureError::new("UNKNOWN_SIGNER"));
             } else {
-                sig.verify(payload);
+                let payload_bytes = CborCodec.to_bytes(&payload)?;
+                sig.signer_pk
+                    .verify(&payload_bytes, sig.sig_bytes)
+                    .map_err(|err| PureError::new(err))?;
+                if sig.next_signer_id == sig.signer_id {
+                    return Err(PureError::new("NEW_SIGNER_EX_SIGNER"));
+                }
                 new_signers.push(sig.next_signer_id);
-                signers.remove(sig.signer_id);
             }
         }
-        for sig in payload.new_signers {}*/
+        for sig in payload.new_signers {}
         todo!()
     }
 }

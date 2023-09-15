@@ -113,9 +113,9 @@ pub fn verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<bool, &'static st
     let h_m: [u8; PARAMETER_N] = Sha256::digest(msg).try_into().unwrap();
     let mut v = [0; PARAMETER_N + 2];
     {
-        let (left, mut right) = v.split_at_mut(PARAMETER_N);
+        let (left, right) = v.split_at_mut(PARAMETER_N);
         left.copy_from_slice(&h_m);
-        let mut cs = checksum(&h_m);
+        let cs = checksum(&h_m);
         right.copy_from_slice(&cs.to_be_bytes());
     }
 

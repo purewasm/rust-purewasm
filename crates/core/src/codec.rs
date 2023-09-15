@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use crate::error::PureError;
+use purewasm_error::PureError;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub trait Codec {
