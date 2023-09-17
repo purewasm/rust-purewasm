@@ -1,7 +1,31 @@
 use alloc::{collections::BTreeMap, vec::Vec};
+use purewasm_codec::{cbor::CborCodec, Codec};
 use purewasm_crypto::{id::DigestId, verification::{IdPublicKeyKind, IdSignatureKind}};
+use purewasm_model::PureError;
 use serde::{Deserialize, Serialize};
-use crate::event::WrappedResult;
+
+// Generic event, it contains wasm id and event kind
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IdEvent {
+    pub context: DigestId,
+    pub payload: IdEventKind,
+}
+
+//
+#[derive(Serialize, Deserialize, Debug)]
+pub struct WrappedResult {
+    pub context: DigestId,
+    pub result: Vec<u8>,
+}
+
+// Store of event
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PersistedEvent {
+    pub context: DigestId,   // wasm identifier
+    pub payload: Vec<u8>,      // GenericEvent bytes
+    pub result_id: DigestId, // To verify result
+}
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IdInception {
@@ -12,8 +36,8 @@ pub struct IdInception {
 }
 
 impl IdInception {
-    pub fn get_id(&self) -> DigestId {
-        DigestId::Sha256([0; 32])
+    pub fn get_id(&self) -> Result<DigestId, PureError> {
+        DigestId::new_sha256(&CborCodec.to_bytes(&self)?)
     }
 }
 
@@ -40,6 +64,11 @@ pub struct IdMutation {
     pub signatures: Vec<IdSignature>,
 }
 
+impl IdMutation {
+    pub fn get_id(&self) -> Result<DigestId, PureError> {
+        DigestId::new_sha256(&CborCodec.to_bytes(&self)?)
+    }
+}
 #[derive(Serialize, Deserialize, Debug)]
 pub enum IdEventKind {
     Inception(IdInception),

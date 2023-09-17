@@ -7,5 +7,5 @@ edition = "2021"
 sha2 = { workspace = true, default-features = false }
 serde = { workspace = true, default-features = false }
 purewasm-misc = {  path = "../misc" }
-purewasm-error = {  path = "../error" }
+purewasm-model = {  path = "../model" }
 

@@ -3,6 +3,9 @@ extern crate alloc;
 use alloc::{borrow::ToOwned, collections::BTreeMap, string::String};
 use serde::{Deserialize, Serialize};
 
+// Define a type alias for `Result`
+pub type PureResult<T> = Result<T, PureError>;
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 enum ErrorValue {

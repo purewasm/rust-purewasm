@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 wasmtime = "12.0.1"
-purewasm-core = { version = "0.1.0", path = "../../../crates/core", features = ["cbor"]}
-purewasm-simple-shared = { version = "0.1.0", path = "../shared" }
+purewasm-model = { path = "../../../crates/model" }
+purewasm-codec = { path = "../../../crates/codec", features = ["cbor"]}
+purewasm-simple-shared = { path = "../shared" }

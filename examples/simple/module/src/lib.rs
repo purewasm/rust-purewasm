@@ -26,11 +26,12 @@ static ALLOCATOR: AssumeSingleThreaded<FreeListAllocator> =
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }*/
-use purewasm_core::use_purewasm;
-use purewasm_bindgen::purewasm_bindgen;
-use purewasm_simple_shared::{CustomResult, Input};
-use_purewasm!();
 
+use purewasm_simple_shared::{CustomResult, Input};
+use purewasm_core::{purewasm_bindgen, purewasm_setup};
+
+purewasm_setup!();
+use purewasm_codec::cbor::CborCodec as DefaultCodec;
 
 #[purewasm_bindgen]
 pub fn example(input: Input) -> PureResult<CustomResult> {

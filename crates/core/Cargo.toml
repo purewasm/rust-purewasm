@@ -5,9 +5,11 @@ edition = "2021"
 
 [dependencies]
 purewasm-bindgen= { path = "bindgen" }
-purewasm-error= { path = "../error" }
+purewasm-model= { path = "../model" }
+purewasm-codec= { path = "../codec", default-features = false }
 lol_alloc = "0.4.0"
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
 
 [dev-dependencies]
 purewasm-core = { path = "."}
+purewasm-codec= { path = "../codec", features = ["cbor"] }
