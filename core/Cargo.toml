@@ -1,0 +1,9 @@
+[package]
+name = "purewasm-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sha2 = { workspace = true, default-features = false }
+serde = { workspace = true, default-features = false }
+serde_bytes = { version = "0.11.12", default-features = false, features=["alloc"] }

@@ -1,0 +1,16 @@
+[package]
+name = "purewasm-codec"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+purewasm-core = {  path = "../core" }
+serde = { workspace = true, default-features = false }
+ciborium = { version = "0.2.1", default-features = false, optional = true }
+serde_json = { version = "1.0.105", default-features = false, features = ["alloc"], optional = true }
+
+[features]
+cbor = ["dep:ciborium"]
+json = ["dep:serde_json"]
+
+

@@ -1,11 +1,11 @@
 [workspace]
 members = [
-    "crates/codec",
-    "crates/model",
-    "crates/crypto",
-    "crates/misc",
-    "crates/core",
-    "wasmid"
+    "codec",
+    #"crates/model",
+    #"crates/crypto",
+    #"crates/misc",
+    "core",
+    #"wasmid"
 ]
 exclude = ["examples/*"]
 
