@@ -2,9 +2,6 @@
 members = [
     "codec",
     "bindgen",
-    #"crates/model",
-    #"crates/crypto",
-    #"crates/misc",
     "core",
     "examples/wasmid"
 ]

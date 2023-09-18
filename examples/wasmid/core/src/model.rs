@@ -1,29 +1,29 @@
 use alloc::{collections::BTreeMap, vec::Vec};
 use purewasm_codec::cbor::CborCodec;
 use purewasm_core::{Codec, DigestId, PureError};
-use purewasm_crypto::verification::{IdPublicKeyKind, IdSignatureKind};
+use crate::verification::{IdPublicKeyKind, IdSignatureKind};
 use serde::{Deserialize, Serialize};
 
-// Generic event, it contains wasm id and event kind
+// Store of event
 #[derive(Serialize, Deserialize, Debug)]
-pub struct IdEvent {
-    pub context: DigestId,
-    pub payload: IdEventKind,
+pub struct PersistedIdCommand {
+    pub context: DigestId,  // wasm identifier
+    pub command: Vec<u8>,   // IdCommand bytes
+    pub event_id: DigestId, // WrappedIdEvent id
 }
 
 //
 #[derive(Serialize, Deserialize, Debug)]
-pub struct WrappedResult {
+pub struct WrappedIdEvent {
     pub context: DigestId,
-    pub result: Vec<u8>,
+    pub event: Vec<u8>,
 }
 
-// Store of event
+// Identity event, it contains wasm id and event kind
 #[derive(Serialize, Deserialize, Debug)]
-pub struct PersistedEvent {
-    pub context: DigestId,   // wasm identifier
-    pub payload: Vec<u8>,    // GenericEvent bytes
-    pub result_id: DigestId, // To verify result
+pub struct IdCommand {
+    pub context: DigestId,
+    pub body: IdCommandKind,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -42,8 +42,8 @@ impl IdInception {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IdMutationPayload {
-    pub previous: WrappedResult,                   // wam_id, bytes
-    pub min_signer: Option<u8>,                    // m of n
+    pub previous: WrappedIdEvent,                  // wasm_id
+    pub min_signer: Option<u8>,                    // min number of signers(m of n)
     pub total_signer: Option<u8>,                  // total number of signers
     pub new_signers: BTreeMap<DigestId, DigestId>, // New signer ids
     pub sdt_state: Option<DigestId>,               // Current state of id
@@ -68,14 +68,15 @@ impl IdMutation {
         DigestId::new_sha256(&CborCodec.to_bytes(&self)?)
     }
 }
+
 #[derive(Serialize, Deserialize, Debug)]
-pub enum IdEventKind {
+pub enum IdCommandKind {
     Inception(IdInception),
     Mutation(IdMutation),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct IdEventResult {
+pub struct IdEvent {
     pub id: DigestId,
     pub event_id: DigestId,
     pub min_signer: u8,

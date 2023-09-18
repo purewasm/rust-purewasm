@@ -12,10 +12,5 @@ strip = "symbols"
 crate-type = ["cdylib"]
 
 [dependencies]
-purewasm-core = {path = "../../core" }
 purewasm-bindgen = {path = "../../bindgen" }
-purewasm-codec = {path = "../../codec", features = ["cbor"] }
-purewasm-crypto = { path = "crypto" }
-
-serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
-ciborium = { version = "0.2.1", default-features = false }
+wasmid-core = { path = "core" }

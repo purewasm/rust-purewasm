@@ -1,15 +1,11 @@
 #![no_main]
 #![cfg_attr(not(test), no_std)]
-mod contants;
-mod handler;
-mod model;
-use model::{IdEvent, WrappedResult};
 use purewasm_bindgen::{purewasm_bindgen, purewasm_setup};
+use wasmid_core::prelude::*;
 
 purewasm_setup!();
-use purewasm_codec::cbor::CborCodec as DefaultCodec;
 
 #[purewasm_bindgen]
-pub fn handle_event(input: IdEvent) -> PureResult<WrappedResult> {
-    handler::handle(input)
+pub fn handle_cmd(input: IdCommand) -> PureResult<WrappedIdEvent> {
+    handle(input)
 }

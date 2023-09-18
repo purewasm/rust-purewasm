@@ -1,17 +1,20 @@
 use crate::{
     contants::error_codes,
-    model::{IdEvent, WrappedResult},
+    model::{IdEvent, WrappedIdEvent},
 };
 use alloc::vec::Vec;
 use purewasm_codec::cbor::CborCodec;
-use purewasm_core::{PureError, PureResult, Codec, DigestId};
+use purewasm_core::{Codec, DigestId, PureError, PureResult};
 
-use crate::model::{IdEventKind, IdEventResult};
+use crate::model::{IdCommand, IdCommandKind};
 
-pub fn handle(input: IdEvent) -> PureResult<WrappedResult> {
-    let result = match input.payload {
-        IdEventKind::Inception(inception) => {
-            let result = IdEventResult {
+pub fn handle(input: IdCommand) -> PureResult<WrappedIdEvent> {
+    let result = match input.body {
+        IdCommandKind::Inception(inception) => {
+            if inception.total_signer > inception.signers.len() as u8 {
+                return Err(PureError::new(error_codes::MIN_SIGNER_NOT_MATCH));
+            }
+            let result = IdEvent {
                 id: inception.get_id()?,
                 event_id: inception.get_id()?,
                 min_signer: inception.min_signer,
@@ -21,12 +24,11 @@ pub fn handle(input: IdEvent) -> PureResult<WrappedResult> {
             };
             result
         }
-        IdEventKind::Mutation(mutation) => {
+        IdCommandKind::Mutation(mutation) => {
             let event_id = mutation.get_id()?;
             // Check previous context is same with current
             if mutation.payload.previous.context == input.context {
-                let previous: IdEventResult =
-                    CborCodec::from_bytes(&mutation.payload.previous.result)?;
+                let previous: IdEvent = CborCodec::from_bytes(&mutation.payload.previous.event)?;
                 if mutation.signatures.len() < previous.min_signer as usize {
                     return Err(PureError::new(error_codes::MIN_SIGNATURE_NOT_MATCH));
                 }
@@ -59,26 +61,26 @@ pub fn handle(input: IdEvent) -> PureResult<WrappedResult> {
                     next_signers.push(next);
                     signers.retain(|value| *value != ex);
                 }
-                let result = IdEventResult {
+                let result = IdEvent {
                     id: previous.id,
                     event_id: event_id,
                     signers: next_signers,
                     min_signer: if let Some(ms) = mutation.payload.min_signer {
                         ms
-                    } else{
+                    } else {
                         previous.min_signer
                     },
                     total_signer: if let Some(ts) = mutation.payload.total_signer {
                         ts
-                    } else{
+                    } else {
                         previous.total_signer
                     },
                     sdt_state: if let Some(sdt) = mutation.payload.sdt_state {
                         sdt
-                    } else{
+                    } else {
                         previous.sdt_state
                     },
-                }; 
+                };
                 result
             } else {
                 return Err(PureError::new(error_codes::UNKNOWN_CONTEXT));
@@ -87,9 +89,32 @@ pub fn handle(input: IdEvent) -> PureResult<WrappedResult> {
     };
 
     let bytes = CborCodec.to_bytes(&result)?;
-    let wrapped = WrappedResult {
+    let wrapped = WrappedIdEvent {
         context: input.context,
-        result: bytes,
+        event: bytes,
     };
     Ok(wrapped)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::model::IdInception;
+
+    use super::*;
+    #[test]
+    fn inception_test() {
+        let cmd = IdCommand {
+            context: DigestId::Sha256([0u8; 32]),
+            body: IdCommandKind::Inception(IdInception{
+                min_signer: 1,
+                total_signer: 1,
+                signers: vec![DigestId::Sha256([0u8; 32])],
+                sdt_state: DigestId::Sha256([0u8; 32]),
+            }),
+        };
+        let wie = handle(cmd).unwrap();
+        let event: IdEvent = CborCodec::from_bytes(&wie.event).unwrap();
+
+        eprintln!("{:?}", event);
+    }
 }
