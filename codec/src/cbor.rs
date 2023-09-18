@@ -1,4 +1,3 @@
-#[cfg(feature = "cbor")]
 use alloc::vec::Vec;
 use purewasm_core::{Codec, PureError};
 use serde::{Serialize, de::DeserializeOwned};

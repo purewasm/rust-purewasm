@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use purewasm_misc::serde_bytes::serde_bytes_array;
+use purewasm_core::serde_bytes_array;
 use serde::{Deserialize, Serialize};
 
 mod wots;

@@ -3,9 +3,8 @@ use crate::{
     model::{IdEvent, WrappedResult},
 };
 use alloc::vec::Vec;
-use purewasm_codec::{cbor::CborCodec, Codec};
-use purewasm_crypto::id::DigestId;
-use purewasm_model::{PureError, PureResult};
+use purewasm_codec::cbor::CborCodec;
+use purewasm_core::{PureError, PureResult, Codec, DigestId};
 
 use crate::model::{IdEventKind, IdEventResult};
 

@@ -1,5 +1,5 @@
 use wasmtime::*;
-use purewasm_codec::Codec;
+use purewasm_core::Codec;
 use purewasm_simple_shared::{Input, CustomResult};
 
 fn main() {
@@ -27,7 +27,7 @@ fn main() {
           memory.data_ptr(&store).offset(result_ptr as isize), result_len as usize);
        /*let r: purewasm_simple_shared::CustomResult = 
          purewasm_core::codec::cbor::CborCodec::from_bytes(mem_slice).unwrap();*/
-         let r: purewasm_model::PureResult<purewasm_simple_shared::CustomResult> = 
+         let r: purewasm_core::PureResult<purewasm_simple_shared::CustomResult> = 
          purewasm_codec::cbor::CborCodec::from_bytes(mem_slice);
        //println!("Len: {:?}", len_ptr);
        println!("Slice: {:?}", r);

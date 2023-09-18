@@ -4,7 +4,7 @@ mod contants;
 mod handler;
 mod model;
 use model::{IdEvent, WrappedResult};
-use purewasm_core::{purewasm_bindgen, purewasm_setup};
+use purewasm_bindgen::{purewasm_bindgen, purewasm_setup};
 
 purewasm_setup!();
 use purewasm_codec::cbor::CborCodec as DefaultCodec;

@@ -28,9 +28,10 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 }*/
 
 use purewasm_simple_shared::{CustomResult, Input};
-use purewasm_core::{purewasm_bindgen, purewasm_setup};
+use purewasm_bindgen::{purewasm_bindgen, purewasm_setup};
 
 purewasm_setup!();
+
 use purewasm_codec::cbor::CborCodec as DefaultCodec;
 
 #[purewasm_bindgen]

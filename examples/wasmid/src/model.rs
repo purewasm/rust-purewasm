@@ -1,7 +1,7 @@
 use alloc::{collections::BTreeMap, vec::Vec};
-use purewasm_codec::{cbor::CborCodec, Codec};
-use purewasm_crypto::{id::DigestId, verification::{IdPublicKeyKind, IdSignatureKind}};
-use purewasm_model::PureError;
+use purewasm_codec::cbor::CborCodec;
+use purewasm_core::{Codec, DigestId, PureError};
+use purewasm_crypto::verification::{IdPublicKeyKind, IdSignatureKind};
 use serde::{Deserialize, Serialize};
 
 // Generic event, it contains wasm id and event kind
@@ -22,10 +22,9 @@ pub struct WrappedResult {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PersistedEvent {
     pub context: DigestId,   // wasm identifier
-    pub payload: Vec<u8>,      // GenericEvent bytes
+    pub payload: Vec<u8>,    // GenericEvent bytes
     pub result_id: DigestId, // To verify result
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct IdInception {
@@ -72,7 +71,7 @@ impl IdMutation {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum IdEventKind {
     Inception(IdInception),
-    Mutation(IdMutation)
+    Mutation(IdMutation),
 }
 
 #[derive(Serialize, Deserialize, Debug)]

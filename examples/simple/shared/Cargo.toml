@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-purewasm-model = { path = "../../../crates/model" }
+purewasm-core = { path = "../../../core" }
 serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
 

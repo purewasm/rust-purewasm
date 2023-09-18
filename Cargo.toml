@@ -1,13 +1,14 @@
 [workspace]
 members = [
     "codec",
+    "bindgen",
     #"crates/model",
     #"crates/crypto",
     #"crates/misc",
     "core",
-    #"wasmid"
+    "examples/wasmid"
 ]
-exclude = ["examples/*"]
+#exclude = ["examples/*"]
 
 [workspace.dependencies]
 sha2 = { version = "0.10.7", default-features = false }

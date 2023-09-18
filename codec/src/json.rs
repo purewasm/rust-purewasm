@@ -1,4 +1,3 @@
-#[cfg(feature = "json")]
 use alloc::vec::Vec;
 use serde::{de::DeserializeOwned, Serialize};
 use purewasm_core::{Codec, PureError};

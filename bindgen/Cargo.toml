@@ -1,15 +1,14 @@
 [package]
-name = "purewasm-core"
+name = "purewasm-bindgen"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-purewasm-bindgen= { path = "bindgen" }
-purewasm-model= { path = "../model" }
-purewasm-codec= { path = "../codec", default-features = false }
+purewasm-bindgen-proc-macro= { path = "proc-macro" }
+purewasm-core= { path = "../core" }
 lol_alloc = "0.4.0"
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
 
 [dev-dependencies]
-purewasm-core = { path = "."}
+purewasm-bindgen = { path = "."}
 purewasm-codec= { path = "../codec", features = ["cbor"] }

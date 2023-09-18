@@ -13,4 +13,7 @@ serde_json = { version = "1.0.105", default-features = false, features = ["alloc
 cbor = ["dep:ciborium"]
 json = ["dep:serde_json"]
 
+#[dev.dependencies]
+#purewasm-codec = {  path = ".", features=["cbor", "json"] }
+
 

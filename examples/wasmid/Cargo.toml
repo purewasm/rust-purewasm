@@ -12,10 +12,10 @@ strip = "symbols"
 crate-type = ["cdylib"]
 
 [dependencies]
-purewasm-core = {path = "../crates/core" }
-purewasm-model = {path = "../crates/model" }
-purewasm-codec = {path = "../crates/codec", features = ["cbor"] }
-purewasm-crypto = { path = "../crates/crypto" }
+purewasm-core = {path = "../../core" }
+purewasm-bindgen = {path = "../../bindgen" }
+purewasm-codec = {path = "../../codec", features = ["cbor"] }
+purewasm-crypto = { path = "crypto" }
 
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
 ciborium = { version = "0.2.1", default-features = false }

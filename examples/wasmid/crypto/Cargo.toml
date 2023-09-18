@@ -6,5 +6,5 @@ edition = "2021"
 [dependencies]
 sha2 = { workspace = true, default-features = false }
 serde = { workspace = true, default-features = false }
-purewasm-core = {  path = "../../core" }
+purewasm-core = {  path = "../../../core" }
 

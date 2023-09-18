@@ -1,5 +1,4 @@
-use purewasm_codec::Codec;
-use purewasm_model::PureError;
+use purewasm_core::{Codec, PureError};
 use serde::{de::DeserializeOwned, Serialize};
 
 pub struct WasmMemory<C: Codec> {
