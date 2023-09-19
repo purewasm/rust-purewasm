@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemFn, PatType};
+use syn::{parse_macro_input, ItemFn, PatType, ReturnType};
 
 #[proc_macro_attribute]
 pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
@@ -16,6 +16,12 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
         syn::FnArg::Typed(PatType { ty, .. }) => ty,
         _ => unreachable!()
     };
+
+    let output_type = match &function.sig.output {
+        syn::ReturnType::Type(_, ty) => ty,
+        _ => unreachable!()
+    };
+    
     
     let output = quote! {
         pub mod #function_name {
@@ -31,8 +37,13 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
                     codec: DefaultCodec,
                 };
                 let input: Result<#input_type, PureError> = memory.from_memory(ptr, len);
-                let result = inner::#function_name(input.unwrap());
-                memory.to_memory(result.unwrap())
+                if let Ok(input) = input {
+                    let result = inner::#function_name(input);
+                    memory.to_memory(result)
+                } else {
+                    let r: #output_type = PureResult::Err(PureError::new("NO_INPUT"));
+                    return memory.to_memory(r);
+                }
             }
         }
     };

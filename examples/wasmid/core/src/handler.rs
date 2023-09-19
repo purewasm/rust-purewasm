@@ -1,5 +1,5 @@
 use crate::{
-    contants::error_codes,
+    error::IdError,
     model::{IdEvent, WrappedIdEvent},
 };
 use alloc::vec::Vec;
@@ -12,7 +12,7 @@ pub fn handle(input: IdCommand) -> PureResult<WrappedIdEvent> {
     let result = match input.body {
         IdCommandKind::Inception(inception) => {
             if inception.total_signer > inception.signers.len() as u8 {
-                return Err(PureError::new(error_codes::MIN_SIGNER_NOT_MATCH));
+                return Err(IdError::MinSignerNotMatch.into());
             }
             let result = IdEvent {
                 id: inception.get_id()?,
@@ -30,7 +30,7 @@ pub fn handle(input: IdCommand) -> PureResult<WrappedIdEvent> {
             if mutation.payload.previous.context == input.context {
                 let previous: IdEvent = CborCodec::from_bytes(&mutation.payload.previous.event)?;
                 if mutation.signatures.len() < previous.min_signer as usize {
-                    return Err(PureError::new(error_codes::MIN_SIGNATURE_NOT_MATCH));
+                    return Err(IdError::MinSignatureNotMatch.into());
                 }
                 let mut next_signers: Vec<DigestId> = Vec::new();
                 let mut signers: Vec<DigestId> = previous.signers.clone();
@@ -38,10 +38,10 @@ pub fn handle(input: IdCommand) -> PureResult<WrappedIdEvent> {
                 for sig in mutation.signatures {
                     sig.signer_id.ensure(&sig.signer_pk.to_bytes())?;
                     if !signers.contains(&sig.signer_id) {
-                        return Err(PureError::new(error_codes::UNKNOWN_SIGNER));
+                        return Err(IdError::UnknownSigner.into());
                     }
                     if sig.next_signer_id == sig.signer_id {
-                        return Err(PureError::new(error_codes::SIGNER_SHOULD_BE_DIFFERENT));
+                        return Err(IdError::SignerShouldBeDifferent.into());
                     }
                     let payload_bytes = CborCodec.to_bytes(&mutation.payload)?;
                     sig.signer_pk
@@ -53,10 +53,10 @@ pub fn handle(input: IdCommand) -> PureResult<WrappedIdEvent> {
                 }
                 for (ex, next) in mutation.payload.new_signers {
                     if !signers.contains(&ex) {
-                        return Err(PureError::new(error_codes::UNKNOWN_SIGNER));
+                        return Err(IdError::UnknownSigner.into());
                     }
                     if ex == next {
-                        return Err(PureError::new(error_codes::SIGNER_SHOULD_BE_DIFFERENT));
+                        return Err(IdError::SignerShouldBeDifferent.into());
                     }
                     next_signers.push(next);
                     signers.retain(|value| *value != ex);
@@ -83,7 +83,8 @@ pub fn handle(input: IdCommand) -> PureResult<WrappedIdEvent> {
                 };
                 result
             } else {
-                return Err(PureError::new(error_codes::UNKNOWN_CONTEXT));
+                // There is no known version
+                return Err(IdError::UnknownContext.into());
             }
         }
     };
@@ -105,7 +106,7 @@ mod tests {
     fn inception_test() {
         let cmd = IdCommand {
             context: DigestId::Sha256([0u8; 32]),
-            body: IdCommandKind::Inception(IdInception{
+            body: IdCommandKind::Inception(IdInception {
                 min_signer: 1,
                 total_signer: 1,
                 signers: vec![DigestId::Sha256([0u8; 32])],
@@ -116,5 +117,9 @@ mod tests {
         let event: IdEvent = CborCodec::from_bytes(&wie.event).unwrap();
 
         eprintln!("{:?}", event);
+
+        let r: PureResult<WrappedIdEvent> = PureResult::Err(PureError::new("NO_INPUT"));
+        let b: PureResult<WrappedIdEvent> = CborCodec::from_bytes(&CborCodec.to_bytes(&r).unwrap());
+        eprintln!("{:?}", b);
     }
 }

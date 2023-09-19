@@ -1,7 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 
-mod contants;
+mod error;
 mod handler;
 mod model;
 mod verification;
