@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemFn, PatType, ReturnType};
+use syn::{parse_macro_input, ItemFn, PatType};
 
 #[proc_macro_attribute]
 pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {

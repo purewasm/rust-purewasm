@@ -20,8 +20,7 @@ const PARAMETER_LS: usize = 4;
 
 /// The size (in bytes) of a public key
 pub const PUBKEY_SIZE: usize = PARAMETER_N;
-/// The size (in bytes) of a private key
-pub const PRIVKEY_SIZE: usize = PARAMETER_P * PARAMETER_N;
+
 /// The size (in bytes) of a signature
 pub const SIG_SIZE: usize = PARAMETER_P * PARAMETER_M;
 
@@ -144,10 +143,11 @@ pub fn verify(pubkey: &[u8], msg: &[u8], sig: &[u8]) -> Result<bool, &'static st
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    /// The size (in bytes) of a private key
+    pub const PRIVKEY_SIZE: usize = PARAMETER_P * PARAMETER_N;
     // This is the OTS Private Key 0 defined in §B.2 Table 4
     const OTS_PRIVKEY_0: &[u8] = &[
         0xbf, 0xb7, 0x57, 0x38, 0x3f, 0xb0, 0x8d, 0x32, 0x46, 0x29, 0x11, 0x5a, 0x84, 0xda, 0xf0,
