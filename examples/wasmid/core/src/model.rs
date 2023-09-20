@@ -1,18 +1,16 @@
+use crate::verification::{IdPublicKeyKind, IdSignatureKind};
 use alloc::{collections::BTreeMap, vec::Vec};
 use purewasm_codec::cbor::CborCodec;
 use purewasm_core::{Codec, DigestId, PureError};
-use crate::verification::{IdPublicKeyKind, IdSignatureKind};
 use serde::{Deserialize, Serialize};
 
-// Store of event
-#[derive(Serialize, Deserialize, Debug)]
-pub struct PersistedIdCommand {
-    pub context: DigestId,  // wasm identifier
-    pub command: Vec<u8>,   // IdCommand bytes
-    pub event_id: DigestId, // WrappedIdEvent id
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PersistedIdEvent {
+    pub context: DigestId, // wasm identifier
+    pub command: Vec<u8>,  // IdCommand bytes
+    pub event: Vec<u8>,    // IdEvent bytes
 }
 
-//
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WrappedIdEvent {
     pub context: DigestId,

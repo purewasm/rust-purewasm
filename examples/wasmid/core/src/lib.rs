@@ -5,7 +5,7 @@ mod error;
 mod handler;
 mod model;
 mod verification;
-
+pub use model::PersistedIdEvent;
 pub mod prelude {
     pub use crate::{
         handler::handle,
@@ -13,3 +13,4 @@ pub mod prelude {
     };
     pub use purewasm_codec::cbor::CborCodec as DefaultCodec;
 }
+

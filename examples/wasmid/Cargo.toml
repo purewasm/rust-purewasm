@@ -14,3 +14,4 @@ crate-type = ["cdylib"]
 [dependencies]
 purewasm-bindgen = {path = "../../bindgen" }
 wasmid-core = { path = "core" }
+wasmid-proof = { path = "proof" }
