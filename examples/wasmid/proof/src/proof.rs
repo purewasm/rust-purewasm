@@ -11,4 +11,5 @@ pub struct MerkleProof {
     pub index: u32,
     pub length: u32,
     pub proof: Vec<u8>,
+    pub root: [u8;32]
 }

@@ -1,18 +1,19 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
+mod proof;
 
 use alloc::{collections::BTreeMap, vec::Vec};
+use proof::IdProof;
 use purewasm_codec::cbor::CborCodec;
 use purewasm_core::{Codec, DigestId};
 use rs_merkle::{algorithms::Sha256, Hasher, MerkleTree};
 use serde::{Deserialize, Serialize};
 use wasmid_core::PersistedIdEvent;
-mod proof;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Identity {
-    pub id: Vec<u8>,
-    pub events: BTreeMap<Vec<u8>, proof::IdProof>,
+    pub id: DigestId,
+    pub events: BTreeMap<DigestId, IdProof>,
 }
 
 pub struct InceptionEvents {
@@ -54,31 +55,27 @@ mod tests {
             elements: vec![],
             tree: MerkleTree::<Sha256>::new(),
         };
-        c.add_event(
-            DigestId::Sha256([0u8; 32]),
-            PersistedIdEvent {
-                context: DigestId::Sha256([1u8; 32]),
-                command: vec![],
-                event: vec![],
-            },
-        );
-        c.add_event(
-            DigestId::Sha256([1u8; 32]),
-            PersistedIdEvent {
-                context: DigestId::Sha256([2u8; 32]),
-                command: vec![1, 23],
-                event: vec![],
-            },
-        );
+        for i  in 1u8..8{
+            c.add_event(
+                DigestId::Sha256([i; 32]),
+                PersistedIdEvent {
+                    context: DigestId::Sha256([i; 32]),
+                    command: vec![i],
+                    event: vec![i],
+                },
+            );
+        }
+        
         let r = c.gen_proof();
         eprintln!("Root: {:?}", r.0);
         for (i, b) in r.1.iter().enumerate() {
+            eprintln!("Proof: {:?}", b);
             let proof = MerkleProof::<Sha256>::try_from(b.to_owned()).unwrap();
             let is_valid = proof.verify(
                 r.0,
                 &[i],
                 &[Sha256::hash(&CborCodec.to_bytes(&c.elements[i]).unwrap())],
-                2,
+                r.1.len(),
             );
             eprintln!("Valid: {}", is_valid);
         }
