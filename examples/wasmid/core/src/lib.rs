@@ -5,7 +5,6 @@ mod error;
 mod handler;
 mod model;
 mod verification;
-mod message;
 pub use model::PersistedIdEvent;
 pub mod prelude {
     pub use crate::{
