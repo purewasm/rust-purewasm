@@ -1,42 +1,16 @@
-use alloc::{collections::BTreeMap, string::String, vec::Vec};
-use purewasm_core::DigestId;
-use purewasm_core::PureResult;
-use serde::{Deserialize, Serialize};
+use alloc::{collections::BTreeMap, vec::Vec};
 
-pub struct PureMessage {
-    pub context: DigestId,                 // Wasm identifier
-    pub query: BTreeMap<String, DigestId>, // xxx -> id
-    pub payload: Vec<u8>,                  // Encoded message payload
-    pub event: DigestId,
+pub trait KeyValueTx {
+    /*fn get_context(id: &[u8]) -> Result<Vec<u8>, ()>;
+    fn get_channel(ch: &str) -> Result<Channel, ()>;
+    fn get_last_message(ch: &str) -> Result<PureMessage, ()>;
+    fn get_values(ch: &str, keys: Vec<String>) -> BTreeMap<String, Vec<u8>>;
+    fn put_message(msg: PureMessage, events: BTreeMap<String, Vec<u8>>) -> bool;*/
+    fn get<T>(key: &str) -> Result<T, DbError>; 
+    fn put<T>(key: &str, value: &T) -> Result<(), DbError>;
 }
 
-impl PureMessage {
-    pub fn get_id(&self) -> Result<DigestId, PureError> {
-        DigestId::new_sha256(&CborCodec.to_bytes(&self)?)
-    }
+pub struct MemoryKeyValueTx {
+   pub db: Arc<Mutex<HashMap<String, Vec<u8>>>> 
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MessageInput {
-    pub context: Vec<u8>,                 // Wasm bytes
-    pub query: BTreeMap<String, Vec<u8>>, // xxx -> encoded query result
-    pub message: PureMessage,             // Persisted message
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct MessageEvent {
-    pub context: DigestId,
-    pub payload: Vec<u8>, // Encoded event
-}
-
-pub type PureMsgResult = PureResult<PureEvent>;
-
-pub fn handle(input: PureMessageInput) -> PureMsgResult {
-    // each hash(input.query) == input.message.query_ids
-    let result = PureEvent {
-        context: input.message.context,
-        event: Vec::new(),
-    };
-    // hash(result) == input.message.query.event_id
-    Ok(result)
-}

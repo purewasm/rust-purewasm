@@ -1,5 +1,6 @@
 pub struct Channel {
-    pub id: DigestId,
-    pub organizations: Vec<Organization>,
+    pub id: String,
+    pub notaries: Vec<Organization>,
+    pub signers: Vec<Organization>,
     pub rotation_msg_size: u8
 }

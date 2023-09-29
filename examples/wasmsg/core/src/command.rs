@@ -1,7 +1,7 @@
 pub struct PureCommand {
-    pub channel: DigestId,                 // Channel identifier
+    pub channel: String,                   // Channel identifier, it is also a db
     pub context: DigestId,                 // Wasm identifier
-    pub query: BTreeMap<String, DigestId>, // Key value id e.g. xxx -> id
+    pub query: Vec<String>,                // Key value id e.g. xxx -> id
     pub payload: Vec<u8>,                  // Encoded message payload
     pub event: DigestId,                   // Result identifier
 }
@@ -27,7 +27,7 @@ pub struct PureMessageEvent {
 pub type PureMsgResult = PureResult<PureEvent>;
 
 // When a client wants to execute a command
-pub fn handle_command(msg: PureCommand) {
+pub fn handle_command(cmd: PureCommand) {
     // check channel
     // check context is valid
     // get context, queries and previous from channel db
@@ -39,7 +39,7 @@ pub fn handle_command(msg: PureCommand) {
 }
 
 // When an executed message propagated
-pub fn handle_message(msg: PureCommand) {
+pub fn handle_message(msg: PureMessage) {
     // check channel
     // check previous is last event
     // check timestamp is valid
