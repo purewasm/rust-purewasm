@@ -1,0 +1,12 @@
+[package]
+name = "purewasm-json"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+purewasm-core = {  path = "../../core" }
+serde = { workspace = true, default-features = false }
+serde_json = { version = "1.0.105", default-features = false, features = ["alloc"] }
+
+
+

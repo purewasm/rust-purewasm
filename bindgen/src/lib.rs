@@ -4,10 +4,17 @@ extern crate alloc;
 
 pub mod memory;
 pub use lol_alloc;
-pub use serde;
+pub use proc_macro::purewasm_bindgen;
 pub use purewasm_core;
-pub use purewasm_bindgen_proc_macro::purewasm_bindgen;
+#[cfg(feature = "cbor")]
+pub use purewasm_cbor;
+#[cfg(feature = "json")]
+pub use purewasm_json;
+pub use serde;
 
+pub mod prelude {
+    pub use crate::{purewasm_bindgen, purewasm_setup};
+}
 // Macro to set up the environment
 #[macro_export]
 macro_rules! purewasm_setup {
@@ -16,9 +23,13 @@ macro_rules! purewasm_setup {
 
         // Import necessary items
         use alloc::{boxed::Box, vec::Vec};
-        use $crate::purewasm_core::{PureResult, PureError, Codec};
-        use $crate::serde::{de::DeserializeOwned, Serialize};
         use $crate::memory::WasmMemory;
+        use $crate::purewasm_core::{Codec, PureError, PureResult};
+        use $crate::serde::{de::DeserializeOwned, Serialize};
+        //#[cfg(not(feature = "json"))]
+        use $crate::purewasm_cbor::CborCodec as DefaultCodec;
+        //#[cfg(feature = "json")]
+        //use $crate::purewasm_json::JsonCodec as DefaultCodec;
 
         // Import allocator for WebAssembly
         #[cfg(target_arch = "wasm32")]

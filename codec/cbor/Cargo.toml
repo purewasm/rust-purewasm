@@ -1,0 +1,12 @@
+[package]
+name = "purewasm-cbor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+purewasm-core = {  path = "../../core" }
+serde = { workspace = true, default-features = false }
+ciborium = { version = "0.2.1", default-features = false }
+
+
+

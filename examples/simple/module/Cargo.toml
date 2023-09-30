@@ -12,7 +12,5 @@ strip = "symbols"
 crate-type = ["cdylib"]
 
 [dependencies]
-purewasm-codec = { path = "../../../codec", features=["cbor"] }
-purewasm-core = { path = "../../../core" }
-purewasm-bindgen = { path = "../../../bindgen" }
+purewasm = { path = "../../../", features = ["bindgen"] }
 purewasm-simple-shared = {  path = "../shared" }

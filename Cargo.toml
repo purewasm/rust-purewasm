@@ -1,17 +1,35 @@
+[package]
+name = "purewasm"
+edition = "2021"
+description = "Pure WASM bindings"
+version = "0.1.0"
+authors = ["Idp2p <adem.caglin@gmail.com>"]
+license = "APACHE 2.0"
+repository = "https://github.com/purewasm/rust-purewasm"
+readme = "README.md"
+keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
+categories = ["webassembly"]
+
 [workspace]
 members = [
-    "codec",
-    "bindgen",
     "core",
-    "examples/wasmid"
+    "codec/cbor",
+    "codec/json",
+    "bindgen",
+    "runtime/wasmtime"
 ]
-#exclude = ["examples/*"]
+
+[features]
+bindgen = ["purewasm-bindgen/cbor"]
+bindgen-json = ["purewasm-bindgen/json"]
+wasmtime = ["purewasm-wasmtime/cbor"]
+wasmtime-json = ["purewasm-wasmtime/json"]
+
+[dependencies]
+purewasm-core = { path = "core" }
+purewasm-bindgen = { path = "bindgen", optional = true }
+purewasm-wasmtime = { path = "runtime/wasmtime", optional = true }
 
 [workspace.dependencies]
-sha2 = { version = "0.10.7", default-features = false }
 serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
 
-[profile.release]
-lto = true
-opt-level = "z"
-strip = "symbols"

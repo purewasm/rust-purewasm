@@ -1,7 +1,7 @@
 use alloc::{borrow::ToOwned, collections::BTreeMap, string::String};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 enum ErrorValue {
     Boolean(bool),
@@ -9,7 +9,7 @@ enum ErrorValue {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PureError {
     code: String,
     details: BTreeMap<String, ErrorValue>,
@@ -40,6 +40,16 @@ impl PureError {
             .insert(key.to_owned(), ErrorValue::Boolean(value));
         self
     }
+
+    pub fn build(&mut self) -> Self {
+        self.to_owned()
+    }
+}
+
+impl From<&str> for PureError {
+    fn from(str_err: &str) -> Self {
+        Self::new(str_err)
+    }
 }
 
 #[cfg(test)]
@@ -64,7 +74,7 @@ mod tests {
         assert_eq!(pure_error.details.len(), 1);
         match pure_error.details.get("message").unwrap() {
             ErrorValue::String(s) => assert_eq!(s, "Error message"),
-            _ => panic!("Test failure")
+            _ => panic!("Test failure"),
         }
     }
 
@@ -77,7 +87,7 @@ mod tests {
         assert_eq!(pure_error.details.len(), 1);
         match pure_error.details.get("code").unwrap() {
             ErrorValue::Number(n) => assert_eq!(*n, 404),
-            _ => panic!("Test failure")
+            _ => panic!("Test failure"),
         }
     }
 
@@ -90,7 +100,7 @@ mod tests {
         assert_eq!(pure_error.details.len(), 1);
         match pure_error.details.get("flag").unwrap() {
             ErrorValue::Boolean(b) => assert_eq!(*b, true),
-            _ => panic!("Test failure")
+            _ => panic!("Test failure"),
         }
     }
 }

@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), no_std)]
+extern crate alloc;
 use alloc::vec::Vec;
 use serde::{de::DeserializeOwned, Serialize};
 use purewasm_core::{Codec, PureError};
@@ -13,24 +15,15 @@ impl Codec for JsonCodec {
         let r = serde_json::to_vec(t);
         match r {
             Ok(t) => Ok(t),
-            Err(_) => Err(PureError::new("JSON_SERIALIZE_ERROR")),
+            Err(_) => Err("JSON_SERIALIZE_ERROR".into()),
         }
     }
 
     fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, PureError> {
         match serde_json::from_slice(bytes) {
             Ok(t) => Ok(t),
-            Err(_) => Err(PureError::new("JSON_DESERIALIZE_ERROR")),
+            Err(_) => Err("JSON_DESERIALIZE_ERROR".into()),
         }
     }
 }
 
-/*
-    #[test]
-    fn json_test(){
-        let codec = json::JsonCodec;
-        let bytes = codec.to_bytes(Input{code:  3}).unwrap();
-        let abc: Input = json::JsonCodec::from_bytes(&bytes).unwrap();
-        eprintln!("{:?}", abc);
-    }
-*/

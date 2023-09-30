@@ -4,11 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-purewasm-bindgen-proc-macro= { path = "proc-macro" }
-purewasm-core= { path = "../core" }
 lol_alloc = "0.4.0"
-serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }
+proc-macro = { path = "proc-macro" }
+purewasm-core = { path = "../core" }
+purewasm-cbor = { path = "../codec/cbor", optional = true }
+purewasm-json = { path = "../codec/json", optional = true }
+serde = { workspace = true, default-features = false, features = [
+    "derive",
+    "alloc",
+] }
 
-[dev-dependencies]
-purewasm-bindgen = { path = "."}
-purewasm-codec= { path = "../codec", features = ["cbor"] }
+[features]
+default = ["cbor"]
+cbor = ["dep:purewasm-cbor"]
+json = ["dep:purewasm-json"]

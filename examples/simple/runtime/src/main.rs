@@ -12,7 +12,7 @@ fn main() {
     let mut store = Store::new(&engine, ());
     let instance = Instance::new(&mut store, &module, &[]).unwrap();
     let memory = instance.get_memory(&mut store, "memory").unwrap();
-    let codec = purewasm_codec::cbor::CborCodec;
+    let codec = purewasm_cbor::CborCodec;
     let input = purewasm_simple_shared::Input { code: 6 };
     let input_bytes: Vec<u8> = codec.to_bytes(&input).unwrap();
     let input_bytes_len = input_bytes.len() as i32;
@@ -37,11 +37,9 @@ fn main() {
             memory.data_ptr(&store).offset(result_ptr as isize),
             result_len as usize,
         );
-        /*let r: purewasm_simple_shared::CustomResult =
-        purewasm_core::codec::cbor::CborCodec::from_bytes(mem_slice).unwrap();*/
         let r: purewasm_core::PureResult<purewasm_simple_shared::CustomResult> =
-            purewasm_codec::cbor::CborCodec::from_bytes(mem_slice);
+           purewasm_cbor::CborCodec::from_bytes(mem_slice).unwrap();
         //println!("Len: {:?}", len_ptr);
-        println!("Slice: {:?}", r);
+        println!("Result: {:?}", r);
     }
 }

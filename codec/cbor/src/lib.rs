@@ -1,3 +1,6 @@
+#![cfg_attr(not(test), no_std)]
+extern crate alloc;
+
 use alloc::vec::Vec;
 use purewasm_core::{Codec, PureError};
 use serde::{Serialize, de::DeserializeOwned};
@@ -12,14 +15,15 @@ impl Codec for CborCodec {
     fn to_bytes<T: Serialize>(&self, t: &T) -> Result<Vec<u8>, PureError> {
         let mut bytes: Vec<u8> = Vec::new();
         if let Err(_) = ciborium::into_writer(&t, &mut bytes) {
-            return Err(PureError::new("CBOR_DESERIALIZE_ERROR"));
+            return Err("CBOR_SERIALIZE_ERROR".into());
         }
         Ok(bytes)
     }
+
     fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, PureError> {
         match ciborium::from_reader(bytes) {
             Ok(t) => Ok(t),
-            Err(_) => Err(PureError::new("CBOR_SERIALIZE_ERROR")),
+            Err(_) => Err("CBOR_DESERIALIZE_ERROR".into())
         }
     }
 }
@@ -48,3 +52,4 @@ mod tests {
 
     }
 }
+
