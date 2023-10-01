@@ -3,12 +3,10 @@ use purewasm_simple_shared::{CustomResult, Input};
 use wasmtime::*;
 
 fn main() {
+    let wasm_file = "../target/wasm32-unknown-unknown/release/purewasm_simple_module.wasm";
     let engine = Engine::default();
-    let module = Module::from_file(
-        &engine,
-        "../target/wasm32-unknown-unknown/release/purewasm_simple_module.wasm",
-    )
-    .unwrap();
+    //let module =Module::from_binary(&engine, &std::fs::read(wasm_file).unwrap()).unwrap();
+    let module = Module::from_file(&engine, wasm_file).unwrap();
     let mut store = Store::new(&engine, ());
     let instance = Instance::new(&mut store, &module, &[]).unwrap();
     let memory = instance.get_memory(&mut store, "memory").unwrap();
@@ -38,7 +36,7 @@ fn main() {
             result_len as usize,
         );
         let r: purewasm_core::PureResult<purewasm_simple_shared::CustomResult> =
-           purewasm_cbor::CborCodec::from_bytes(mem_slice).unwrap();
+            purewasm_cbor::CborCodec::from_bytes(mem_slice).unwrap();
         //println!("Len: {:?}", len_ptr);
         println!("Result: {:?}", r);
     }

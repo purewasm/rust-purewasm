@@ -22,8 +22,7 @@ members = [
 [features]
 bindgen = ["purewasm-bindgen/cbor"]
 bindgen-json = ["purewasm-bindgen/json"]
-wasmtime = ["purewasm-wasmtime/cbor"]
-wasmtime-json = ["purewasm-wasmtime/json"]
+wasmtime = ["purewasm-wasmtime"]
 
 [dependencies]
 purewasm-core = { path = "core" }

@@ -6,14 +6,9 @@ edition = "2021"
 [dependencies]
 wasmtime = "12.0.1"
 purewasm-core = { path = "../../core" }
-purewasm-cbor = { path = "../../codec/cbor", optional = true }
-purewasm-json = { path = "../../codec/json", optional = true }
+purewasm-cbor = { path = "../../codec/cbor"}
+purewasm-json = { path = "../../codec/json" }
 serde = { workspace = true, default-features = false, features = [
     "derive",
     "alloc",
 ] }
-
-[features]
-default = ["cbor"]
-cbor = ["dep:purewasm-cbor"]
-json = ["dep:purewasm-json"]

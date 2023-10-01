@@ -1,47 +1,56 @@
-use purewasm_core::{Codec, PureResult};
-use wasmtime::{Engine, Instance, Module, Store};
+use std::collections::HashMap;
 
-#[cfg(feature = "cbor")]
-pub use purewasm_cbor as cbor;
-#[cfg(feature = "json")]
-pub use purewasm_json as json;
+use wasmtime::{Engine, Instance, Module, Store, Memory};
 
-pub struct PureModule<T: Codec> {
-    pub file: String,
-    pub codec: T,
+struct PureModule {
+    module: Module,
+    instance: Instance,
+    store: Store<()>,
+    memory: Memory
 }
 
-impl<T: Codec> PureModule<T> {
-    pub fn call_fn<I: serde::Serialize, R: serde::de::DeserializeOwned>(&self, fn_name: &str, input: I) -> PureResult<R> {
+impl PureModule {
+    pub fn from_binary(binary: &[u8]) -> Self {
         let engine = Engine::default();
-        let module = Module::from_file(&engine, &self.file).unwrap();
+        let module = Module::from_binary(&engine, binary).unwrap();
+        Self::new(module, engine)
+    }
+    pub fn from_file(file: &str) -> Self {
+        let engine = Engine::default();
+        let module = Module::from_file(&engine, file).unwrap();
+        Self::new(module, engine)
+    }
+
+    pub fn new(module: Module, engine: Engine) -> Self {
         let mut store = Store::new(&engine, ());
         let instance = Instance::new(&mut store, &module, &[]).unwrap();
         let memory = instance.get_memory(&mut store, "memory").unwrap();
-        let input_bytes: Vec<u8> = self.codec.to_bytes(&input).unwrap();
+
+        Self { module, instance, store, memory }
+    }
+
+    pub fn call_fn(&mut self, fn_name: &str, input_bytes: &[u8]) -> Vec<u8> {        
         let input_bytes_len = input_bytes.len() as i32;
-        let alloc_func = instance
-            .get_typed_func::<i32, i32>(&mut store, "alloc")
+        let alloc_func = self.instance
+            .get_typed_func::<i32, i32>(&mut self.store, "alloc")
             .unwrap();
-        let input_bytes_ptr = alloc_func.call(&mut store, input_bytes_len).unwrap();
-        memory
-            .write(&mut store, input_bytes_ptr as usize, &input_bytes)
+        let input_bytes_ptr = alloc_func.call(&mut self.store, input_bytes_len).unwrap();
+        self.memory
+            .write(&mut self.store, input_bytes_ptr as usize, &input_bytes)
             .unwrap();
 
-        let func = instance
-            .get_typed_func::<(i32, i32), (i32, i32)>(&mut store, fn_name)
+        let func = self.instance
+            .get_typed_func::<(i32, i32), (i32, i32)>(&mut self.store, fn_name)
             .unwrap();
         let (result_ptr, result_len) = func
-            .call(&mut store, (input_bytes_ptr, input_bytes_len))
+            .call(&mut self.store, (input_bytes_ptr, input_bytes_len))
             .unwrap();
         unsafe {
             let mem_slice = std::slice::from_raw_parts(
-                memory.data_ptr(&store).offset(result_ptr as isize),
+                self.memory.data_ptr(&self.store).offset(result_ptr as isize),
                 result_len as usize,
             );
-            let result: purewasm_core::PureResult<R> =
-               T::from_bytes(mem_slice).unwrap();
-            return result;
+            mem_slice.to_vec()
         }
     }
 }
