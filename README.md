@@ -1,6 +1,8 @@
 # rust-purewasm
 
-> rust-purewasm is a purewasm library for rust. 
+> rust-purewasm is a purewasm library for rust.
+
+⚠  Under Develeopment 
 
 The rust-purewasm library is a Rust library designed to build pure functions using WebAssembly (Wasm). WebAssembly is a portable binary intermediate language that enables code execution in a virtual machine. It provides a secure sandboxed environment where code can run, with a limited instruction set that focuses on pure functions and numerical operations on its own memory. While WebAssembly is commonly used in web technology, it is also suitable for developing smart contracts in various contexts, not just limited to blockchain applications.
 
