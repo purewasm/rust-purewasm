@@ -1,9 +1,6 @@
-use std::collections::HashMap;
-
 use wasmtime::{Engine, Instance, Module, Store, Memory};
 
-struct PureModule {
-    module: Module,
+pub struct PureModule {
     instance: Instance,
     store: Store<()>,
     memory: Memory
@@ -26,7 +23,7 @@ impl PureModule {
         let instance = Instance::new(&mut store, &module, &[]).unwrap();
         let memory = instance.get_memory(&mut store, "memory").unwrap();
 
-        Self { module, instance, store, memory }
+        Self { instance, store, memory }
     }
 
     pub fn call_fn(&mut self, fn_name: &str, input_bytes: &[u8]) -> Vec<u8> {        
