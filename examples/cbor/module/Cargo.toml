@@ -1,5 +1,5 @@
 [package]
-name = "purewasm-simple-module"
+name = "purewasm-cbor-module"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,4 +13,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 purewasm = { path = "../../../", features = ["bindgen"] }
-purewasm-simple-core = {  path = "../core" }
+purewasm-cbor-core = {  path = "../core" }

@@ -9,20 +9,15 @@ pub use purewasm_core;
 pub use serde;
 
 pub mod prelude {
+    pub use crate::memory::WasmMemory;
+    pub use crate::purewasm_core::{Codec, PureError, PureResult};
     pub use crate::{purewasm_bindgen, purewasm_setup};
+    pub use alloc::{boxed::Box, vec::Vec};
 }
 // Macro to set up the environment
 #[macro_export]
 macro_rules! purewasm_setup {
     () => {
-        extern crate alloc;
-
-        // Import necessary items
-        use alloc::{boxed::Box, vec::Vec};
-        use $crate::memory::WasmMemory;
-        use $crate::purewasm_core::{Codec, PureError, PureResult};
-        use $crate::serde::{de::DeserializeOwned, Serialize};
-
         // Import allocator for WebAssembly
         #[cfg(target_arch = "wasm32")]
         use $crate::lol_alloc::{AssumeSingleThreaded, FreeListAllocator};

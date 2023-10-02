@@ -13,17 +13,16 @@ cargo install rust-purewasm
 
 ### Module 
 
-CBOR
-
-``` purewasm = { version = "0.1.0-alpha", features = ["bindgen"] } ```
-
-----------
-JSON
-
 ``` purewasm = { version = "0.1.0-alpha", features = ["bindgen-json"] } ```
 
 ```rust
-use serde::{Deserialize, Serialize};
+#![no_main]
+#![cfg_attr(not(test), no_std)]
+extern crate alloc;
+use purewasm::bindgen::prelude::*;
+
+use serde::{Serialize, Deserialize};
+use alloc::{format, string::String};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Input {
@@ -34,13 +33,6 @@ pub struct Input {
 pub struct CustomResult {
     pub msg: String,
 }
-
-#![no_main]
-#![cfg_attr(not(test), no_std)]
-
-extern crate alloc;
-use alloc::{format, string::String};
-use purewasm::bindgen::prelude::*;
 
 purewasm_setup!();
 
@@ -57,19 +49,17 @@ pub fn handle_example(input: Input) -> PureResult<CustomResult> {
 ``` purewasm = { version = "0.1.0-alpha", features = ["wasmtime"] } ```
 
 ```rust
-
-use purewasm_cbor::CborCodec;
-use purewasm_core::{Codec, PureResult};
-use purewasm_wasmtime::PureModule;
+use purewasm::wasmtime::PureModule;
 
 fn main() {
-    let wasm_file = "../target/wasm32-unknown-unknown/release/purewasm_simple_module.wasm";
-    let input = CborCodec.to_bytes(&Input { code: 6 }).unwrap();
+    let wasm_file = "../target/wasm32-unknown-unknown/release/purewasm_json_module.wasm";
+    let input = serde_json::to_vec(&serde_json::json!({"code": 6})).unwrap();
     let mut module = PureModule::from_file(wasm_file);
     let result = module.call_fn("handle_example", &input);
-    let result: PureResult<CustomResult> = CborCodec::from_bytes(&result).unwrap();
+    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
     println!("Result: {:?}", result);
 }
+
 ```
 
 ## License

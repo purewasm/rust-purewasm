@@ -1,0 +1,16 @@
+[package]
+name = "purewasm-json-module"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = true
+opt-level = "z"
+strip = "symbols"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+purewasm = { path = "../../../", features = ["bindgen-json"] }
+serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
