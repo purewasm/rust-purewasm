@@ -44,7 +44,9 @@ cargo install rust-purewasm
 
 ### Module 
 
-``` purewasm = { version = "0.1.0", features = ["bindgen-json"] } ```
+```toml
+ purewasm = { version = "0.1.0", features = ["bindgen-json"] } 
+```
 
 ```rust
 #![no_main]
@@ -77,7 +79,9 @@ pub fn handle_example(input: Input) -> PureResult<CustomResult> {
 
 ### Runtime(wasmtime)
 
-``` purewasm = { version = "0.1.0", features = ["wasmtime"] } ```
+```toml
+purewasm = { version = "0.1.0", features = ["wasmtime"] } 
+```
 
 ```rust
 use purewasm::wasmtime::PureModule;
@@ -92,6 +96,8 @@ fn main() {
 }
 
 ```
+
+See cbor [example](https://github.com/purewasm/rust-purewasm/tree/main/examples/cbor)
 
 ## License
 
