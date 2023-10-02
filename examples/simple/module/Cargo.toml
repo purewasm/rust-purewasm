@@ -13,4 +13,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 purewasm = { path = "../../../", features = ["bindgen"] }
-purewasm-simple-shared = {  path = "../shared" }
+purewasm-simple-core = {  path = "../core" }

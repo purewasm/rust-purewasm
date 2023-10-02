@@ -20,12 +20,14 @@ members = [
 ]
 
 [features]
-bindgen = ["purewasm-bindgen/cbor"]
-bindgen-json = ["purewasm-bindgen/json"]
+bindgen = ["purewasm-bindgen", "dep:purewasm-cbor"]
+bindgen-json = ["purewasm-bindgen", "dep:purewasm-json"]
 wasmtime = ["purewasm-wasmtime"]
 
 [dependencies]
 purewasm-core = { path = "core" }
+purewasm-cbor = { path = "codec/cbor", optional = true }
+purewasm-json = { path = "codec/json", optional = true }
 purewasm-bindgen = { path = "bindgen", optional = true }
 purewasm-wasmtime = { path = "runtime/wasmtime", optional = true }
 

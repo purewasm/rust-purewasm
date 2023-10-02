@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-purewasm-core = { path = "../../../core" }
+purewasm = { path = "../../../", features = ["wasmtime"] }
 purewasm-cbor = { path = "../../../codec/cbor" }
-purewasm-wasmtime = { path = "../../../runtime/wasmtime" }
-purewasm-simple-shared = { path = "../shared" }
+purewasm-simple-core = { path = "../core" }

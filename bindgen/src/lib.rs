@@ -6,10 +6,6 @@ pub mod memory;
 pub use lol_alloc;
 pub use proc_macro::purewasm_bindgen;
 pub use purewasm_core;
-#[cfg(feature = "cbor")]
-pub use purewasm_cbor;
-#[cfg(feature = "json")]
-pub use purewasm_json;
 pub use serde;
 
 pub mod prelude {
@@ -26,10 +22,6 @@ macro_rules! purewasm_setup {
         use $crate::memory::WasmMemory;
         use $crate::purewasm_core::{Codec, PureError, PureResult};
         use $crate::serde::{de::DeserializeOwned, Serialize};
-        //#[cfg(not(feature = "json"))]
-        use $crate::purewasm_cbor::CborCodec as DefaultCodec;
-        //#[cfg(feature = "json")]
-        //use $crate::purewasm_json::JsonCodec as DefaultCodec;
 
         // Import allocator for WebAssembly
         #[cfg(target_arch = "wasm32")]
