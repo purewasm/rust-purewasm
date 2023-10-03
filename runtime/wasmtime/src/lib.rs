@@ -1,9 +1,9 @@
-use wasmtime::{Engine, Instance, Module, Store, Memory};
+use wasmtime::{Engine, Instance, Memory, Module, Store};
 
 pub struct PureModule {
     instance: Instance,
     store: Store<()>,
-    memory: Memory
+    memory: Memory,
 }
 
 impl PureModule {
@@ -23,12 +23,17 @@ impl PureModule {
         let instance = Instance::new(&mut store, &module, &[]).unwrap();
         let memory = instance.get_memory(&mut store, "memory").unwrap();
 
-        Self { instance, store, memory }
+        Self {
+            instance,
+            store,
+            memory,
+        }
     }
 
-    pub fn call_fn(&mut self, fn_name: &str, input_bytes: &[u8]) -> Vec<u8> {        
+    pub fn call_fn(&mut self, fn_name: &str, input_bytes: &[u8]) -> Vec<u8> {
         let input_bytes_len = input_bytes.len() as i32;
-        let alloc_func = self.instance
+        let alloc_func = self
+            .instance
             .get_typed_func::<i32, i32>(&mut self.store, "alloc")
             .unwrap();
         let input_bytes_ptr = alloc_func.call(&mut self.store, input_bytes_len).unwrap();
@@ -36,7 +41,8 @@ impl PureModule {
             .write(&mut self.store, input_bytes_ptr as usize, &input_bytes)
             .unwrap();
 
-        let func = self.instance
+        let func = self
+            .instance
             .get_typed_func::<(i32, i32), (i32, i32)>(&mut self.store, fn_name)
             .unwrap();
         let (result_ptr, result_len) = func
@@ -44,7 +50,9 @@ impl PureModule {
             .unwrap();
         unsafe {
             let mem_slice = std::slice::from_raw_parts(
-                self.memory.data_ptr(&self.store).offset(result_ptr as isize),
+                self.memory
+                    .data_ptr(&self.store)
+                    .offset(result_ptr as isize),
                 result_len as usize,
             );
             mem_slice.to_vec()

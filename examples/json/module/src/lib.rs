@@ -16,8 +16,6 @@ pub struct CustomResult {
     pub msg: String,
 }
 
-purewasm_setup!();
-
 #[purewasm_bindgen]
 pub fn handle_example(input: Input) -> PureResult<CustomResult> {
     Ok(CustomResult {
