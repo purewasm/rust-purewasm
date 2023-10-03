@@ -4,13 +4,13 @@
 
 ⚠  Under Develeopment 
 
-The rust-purewasm library is a Rust library designed to build pure functions using WebAssembly (Wasm). WebAssembly is a portable binary intermediate language that enables code execution in a virtual machine. It provides a secure sandboxed environment where code can run, with a limited instruction set that focuses on pure functions and numerical operations on its own memory. While WebAssembly is commonly used in web technology, it is also suitable for developing smart contracts in various contexts, not just limited to blockchain applications.
+The rust-purewasm is a Rust library designed to build pure functions using WebAssembly (Wasm). WebAssembly is a portable binary intermediate language that enables code execution in a virtual machine. It provides a secure sandboxed environment where code can run, with a limited instruction set that focuses on pure functions and numerical operations on its own memory. While WebAssembly is commonly used in web technology, it is also suitable for developing deterministic(pure) functions in various contexts.
 
-However, WebAssembly has a limitation when it comes to supporting complex data types. Despite this limitation, rust-purewasm aims to work around it by making assumptions about memory and providing encoding-decoding capabilities for JSON and CBOR codecs.
+However, WebAssembly has a limitation when it comes to supporting complex data types. Despite this limitation, purewasm aims to work around it by making assumptions about memory and providing encoding-decoding capabilities for JSON and CBOR codecs. 
 
 #### Runtime
 
-The runtime component of rust-purewasm handles the execution of WebAssembly modules. It follows these steps:
+The runtime component of purewasm handles the execution of WebAssembly modules. It follows these steps:
 
 - Encodes the input data into bytes using the specified codec (such as JSON or CBOR).
 - Allocates memory to store the input bytes.
@@ -18,7 +18,7 @@ The runtime component of rust-purewasm handles the execution of WebAssembly modu
 
 #### Wasm Module
 
-The wasm module component of rust-purewasm is responsible for processing the input data, preparing the output data, and returning it to the runtime. It performs the following tasks:
+The wasm module component of purewasm is responsible for processing the input data, preparing the output data, and returning its pointer and length to the runtime. It performs the following tasks:
 
 - Retrieves the input bytes using the provided pointer and length.
 - Decodes the input data from the specified codec (such as JSON or CBOR) into the appropriate data types.
@@ -26,7 +26,7 @@ The wasm module component of rust-purewasm is responsible for processing the inp
 - Encodes the output data into bytes using the specified codec.
 - Returns the pointer and length of the output data to the runtime.
 
-Here's an example of how to define a function in Rust that can be used as a WebAssembly module with JSON and CBOR codecs:
+A purewasm function only takes one input and returns only one output. Here's an example of how to define a function in Rust that can be used as a WebAssembly module with JSON and CBOR codecs:
 ```rust
 fn example(ptr: i32, len: i32) -> (i32, i32) {
     // ...

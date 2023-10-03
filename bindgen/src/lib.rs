@@ -26,7 +26,7 @@ pub mod prelude {
      #[cfg(not(test))]
      #[panic_handler]
      fn panic(_info: &core::panic::PanicInfo) -> ! {
-         loop {}
+         loop { }
      }
 
      // Allocation function for WebAssembly
