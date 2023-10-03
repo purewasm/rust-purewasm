@@ -20,11 +20,11 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      #- name: Publish Core
-      #  working-directory: ./core
-      #  run: cargo publish --token ${CRATES_TOKEN}
-      #  env:
-      #    CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+      - name: Publish Core
+        working-directory: ./core
+        run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
       - name: Publish JSON
         working-directory: ./codec/json
         run: cargo publish --token ${CRATES_TOKEN}
