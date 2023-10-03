@@ -2,6 +2,7 @@
 name = "purewasm-bindgen"
 version = "0.1.0"
 edition = "2021"
+description = "Pure WASM bindings"
 authors = ["adem caglin<adem.caglin@gmail.com>"]
 license = "APACHE 2.0"
 repository = "https://github.com/purewasm/rust-purewasm"
