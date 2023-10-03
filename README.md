@@ -53,7 +53,6 @@ cargo install rust-purewasm
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 use purewasm::bindgen::prelude::*;
-
 use serde::{Serialize, Deserialize};
 use alloc::{format, string::String};
 
@@ -66,8 +65,6 @@ pub struct Input {
 pub struct CustomResult {
     pub msg: String,
 }
-
-purewasm_setup!();
 
 #[purewasm_bindgen]
 pub fn handle_example(input: Input) -> PureResult<CustomResult> {
