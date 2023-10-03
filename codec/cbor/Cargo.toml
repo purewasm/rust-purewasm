@@ -2,6 +2,12 @@
 name = "purewasm-cbor"
 version = "0.1.0"
 edition = "2021"
+authors = ["adem caglin<adem.caglin@gmail.com>"]
+license = "APACHE 2.0"
+repository = "https://github.com/purewasm/rust-purewasm"
+readme = "README.md"
+keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
+categories = ["webassembly"]
 
 [dependencies]
 purewasm-core = {  path = "../../core" }
