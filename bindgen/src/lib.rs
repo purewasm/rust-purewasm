@@ -3,7 +3,7 @@ extern crate alloc;
 
 pub mod memory;
 pub use lol_alloc;
-pub use proc_macro::purewasm_bindgen;
+pub use purewasm_proc_macro::purewasm_bindgen;
 pub use purewasm_core;
 pub use serde;
 
