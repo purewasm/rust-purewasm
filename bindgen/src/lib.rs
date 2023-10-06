@@ -28,7 +28,7 @@ pub mod prelude {
      fn panic(_info: &core::panic::PanicInfo) -> ! {
          loop { }
      }
-
+     
      // Allocation function for WebAssembly
      #[no_mangle]
      pub extern "C" fn alloc(len: usize) -> *mut u8 {

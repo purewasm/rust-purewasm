@@ -12,8 +12,8 @@ categories = ["webassembly"]
 
 [dependencies]
 lol_alloc = "0.4.0"
-purewasm-proc-macro = { path = "proc-macro", version = "0.1.0" }
-purewasm-core = { path = "../core", version = "0.1.0"}
+purewasm-proc-macro = { workspace = true }
+purewasm-core = { workspace = true }
 serde = { workspace = true, default-features = false, features = [
     "derive",
     "alloc",

@@ -25,12 +25,18 @@ bindgen-json = ["purewasm-bindgen", "dep:purewasm-json"]
 wasmtime = ["purewasm-wasmtime"]
 
 [dependencies]
-purewasm-core = { path = "core", version = "0.1.0" }
-purewasm-cbor = { path = "codec/cbor", version = "0.1.0", optional = true }
-purewasm-json = { path = "codec/json", version = "0.1.0", optional = true }
-purewasm-bindgen = { path = "bindgen", version = "0.1.0", optional = true }
-purewasm-wasmtime = { path = "runtime/wasmtime", version = "0.1.0", optional = true }
+purewasm-core = { workspace = true }
+purewasm-cbor = { workspace = true, optional = true }
+purewasm-json = { workspace = true, optional = true }
+purewasm-bindgen = { workspace = true, optional = true }
+purewasm-wasmtime = { workspace = true, optional = true }
 
 [workspace.dependencies]
 serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
+purewasm-proc-macro = { path = "bindgen/proc-macro", version = "0.1.0" }
+purewasm-core = { path = "core", version = "0.1.0" }
+purewasm-cbor = { path = "codec/cbor", version = "0.1.0" }
+purewasm-json = { path = "codec/json", version = "0.1.0" }
+purewasm-bindgen = { path = "bindgen", version = "0.1.0" }
+purewasm-wasmtime = { path = "runtime/wasmtime", version = "0.1.0" }
 
