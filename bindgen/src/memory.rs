@@ -1,4 +1,5 @@
-use purewasm_core::{Codec, PureError};
+use purewasm_core::Codec;
+use alloc::string::String;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub struct WasmMemory<C: Codec> {
@@ -21,7 +22,7 @@ impl<C: Codec> WasmMemory<C> {
         &self,
         ptr: *mut u8,
         len: i32,
-    ) -> Result<T, PureError> {
+    ) -> Result<T, String> {
         let bytes = core::slice::from_raw_parts(ptr, len as usize);
         C::from_bytes(bytes)
     }

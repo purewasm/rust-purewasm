@@ -17,7 +17,7 @@ pub struct CustomResult {
 }
 
 #[purewasm_bindgen]
-pub fn handle_example(input: Input) -> PureResult<CustomResult> {
+pub fn handle_example(input: Input) -> Result<CustomResult, String> {
     Ok(CustomResult {
         msg: format!("The input code is {}", input.code),
     })

@@ -36,12 +36,12 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
                 let memory = WasmMemory {
                     codec: purewasm::DefaultCodec,
                 };
-                let input: Result<#input_type, PureError> = memory.from_memory(ptr, len);
+                let input: Result<#input_type, String> = memory.from_memory(ptr, len);
                 if let Ok(input) = input {
                     let result = inner::#function_name(input);
                     memory.to_memory(result)
                 } else {
-                    let r: #output_type = PureResult::Err(PureError::new("NO_INPUT"));
+                    let r: #output_type = Err("NO_INPUT".into());
                     return memory.to_memory(r);
                 }
             }
