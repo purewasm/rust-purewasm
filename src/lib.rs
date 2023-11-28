@@ -12,3 +12,4 @@ pub use purewasm_json::JsonCodec as DefaultCodec;
 
 #[cfg(feature = "wasmtime")]
 pub use purewasm_wasmtime as wasmtime;
+
