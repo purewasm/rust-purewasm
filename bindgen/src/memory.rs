@@ -1,6 +1,7 @@
-use purewasm_core::Codec;
 use alloc::string::String;
 use serde::{de::DeserializeOwned, Serialize};
+
+use crate::prelude::Codec;
 
 pub struct WasmMemory<C: Codec> {
     pub codec: C,

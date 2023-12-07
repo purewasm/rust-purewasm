@@ -1,5 +1,5 @@
 [package]
-name = "purewasm-json"
+name = "purewasm-cbor"
 version = "0.1.0"
 edition = "2021"
 description = "Pure WASM bindings"
@@ -11,9 +11,9 @@ keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
 categories = ["webassembly"]
 
 [dependencies]
-purewasm-core = {  workspace = true }
+purewasm-bindgen = { workspace = true }
 serde = { workspace = true, default-features = false }
-serde_json = { version = "1.0.105", default-features = false, features = ["alloc"] }
+ciborium = { version = "0.2.1", default-features = false }
 
 
 

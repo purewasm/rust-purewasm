@@ -2,13 +2,13 @@
 extern crate alloc;
 
 use alloc::{string::String, vec::Vec};
-use purewasm_core::Codec;
+use purewasm_bindgen::codec::Codec;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub struct CborCodec;
 
 impl Codec for CborCodec {
-    fn get_code(&self) -> i64 {
+    fn code(&self) -> i64 {
         0x51
     }
 

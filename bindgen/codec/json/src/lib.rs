@@ -1,13 +1,13 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 use alloc::{string::String, vec::Vec};
-use purewasm_core::Codec;
+use purewasm_bindgen::codec::Codec;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub struct JsonCodec;
 
 impl Codec for JsonCodec {
-    fn get_code(&self) -> i64 {
+    fn code(&self) -> i64 {
         0x0200
     }
 

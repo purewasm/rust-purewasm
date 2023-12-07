@@ -1,0 +1,11 @@
+[package]
+name = "purewasm-module"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+purewasm = { path = "../../", features = ["bindgen"] }
+serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
