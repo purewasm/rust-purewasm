@@ -6,6 +6,11 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib"]
 
+[profile.release]
+lto = true
+opt-level = "z"
+strip = "symbols"
+
 [dependencies]
 purewasm = { path = "../../", features = ["bindgen"] }
-serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
+serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }

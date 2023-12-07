@@ -13,4 +13,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 purewasm = { path = "../../../", features = ["bindgen"] }
-purewasm-cbor-core = {  path = "../core" }
+serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }

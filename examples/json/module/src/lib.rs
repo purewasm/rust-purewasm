@@ -30,9 +30,19 @@ impl From<&str> for CustomError {
     }
 }
 
+impl From<String> for CustomError {
+    fn from(s: String) -> Self {
+        Self {
+            msg: s
+        }
+    }
+}
+
 
 #[purewasm_bindgen]
 pub fn handle_example(input: Input) -> Result<CustomResult, CustomError> {
+    let a: CustomResult = get!("")?;
+    put!("aa", a);
     Ok(CustomResult {
         msg: format!("The input code is {}", input.code),
     })

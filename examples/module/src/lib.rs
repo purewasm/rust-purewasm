@@ -3,9 +3,8 @@
 extern crate alloc;
 use purewasm::bindgen::prelude::*;
 
-
-use serde::{Serialize, Deserialize};
-use alloc::{format, string::String, borrow::ToOwned};
+use alloc::{format, string::String};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Input {
@@ -17,29 +16,8 @@ pub struct CustomResult {
     pub msg: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CustomError {
-    pub msg: String,
-}
-
-impl From<&str> for CustomError {
-    fn from(s: &str) -> Self {
-        Self {
-            msg: s.to_owned()
-        }
-    }
-}
-
-impl From<String> for CustomError {
-    fn from(s: String) -> Self {
-        Self {
-            msg: s
-        }
-    }
-}
-
 #[purewasm_bindgen]
-pub fn handle_example(input: Input) -> Result<CustomResult, CustomError> {
+pub fn handle_example(input: Input) -> Result<CustomResult, String> {
     //let codec = purewasm::DefaultCodec;
     //let t: String = purewasm::DefaultCodec::from_bytes("".as_bytes())?;
     let a: CustomResult = get!("")?;
