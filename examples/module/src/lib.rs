@@ -21,9 +21,10 @@ pub fn handle_example(input: Input) -> Result<CustomResult, String> {
     //let codec = purewasm::DefaultCodec;
     //let t: String = purewasm::DefaultCodec::from_bytes("".as_bytes())?;
     let a: CustomResult = get!("")?;
+    let res = CustomResult {
+        msg: format!("The input code is {}", input.code),
+    };    let b: CustomResult = call!("", input)?;
     put!("aa", a);
     //let a: String = get_from_host("").unwrap();
-    Ok(CustomResult {
-        msg: format!("The input code is {}", input.code),
-    })
+    Ok(res)
 }

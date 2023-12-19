@@ -34,7 +34,7 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
             #[no_mangle]
             pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> (i32, i32) {
                 let memory = WasmMemory {
-                    codec: purewasm::DefaultCodec,
+                    codec: purewasm::CodecImpl{},
                 };
                 let input: Result<#input_type, String> = memory.from_memory(ptr, len);
                 if let Ok(input) = input {

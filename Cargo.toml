@@ -20,8 +20,9 @@ members = [
 ]
 
 [features]
-bindgen = ["purewasm-bindgen", "dep:purewasm-cbor"]
-bindgen-json = ["purewasm-bindgen", "dep:purewasm-json"]
+bindgen = ["purewasm-bindgen"]
+bindgen-cbor = ["dep:purewasm-cbor"]
+bindgen-json = ["dep:purewasm-json"]
 wasmtime = ["purewasm-wasmtime"]
 
 [profile.release]
@@ -34,6 +35,7 @@ purewasm-cbor = { workspace = true, optional = true }
 purewasm-json = { workspace = true, optional = true }
 purewasm-bindgen = { workspace = true, optional = true }
 purewasm-wasmtime = { workspace = true, optional = true }
+cfg-if = "1.0.0"
 
 [workspace.dependencies]
 serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }

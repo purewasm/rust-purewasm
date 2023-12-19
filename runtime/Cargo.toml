@@ -1,0 +1,19 @@
+[package]
+name = "purewasm-runtime"
+version = "0.1.0"
+edition = "2021"
+description = "Pure WASM runtime"
+authors = ["adem caglin<adem.caglin@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/purewasm/rust-purewasm"
+readme = "README.md"
+keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
+categories = ["webassembly"]
+
+[dependencies]
+purewasm-runtime-wasmtime = { workspace = true }
+serde = { workspace = true, default-features = false, features = [
+    "derive",
+    "alloc",
+] }
+
