@@ -34,7 +34,7 @@ macro_rules! put {
     }};
 }
 
-#[macro_export]
+/*#[macro_export]
 macro_rules! call {
     ($wasmid:expr, $input: expr) => {{
         unsafe {
@@ -48,7 +48,7 @@ macro_rules! call {
             memory.from_memory(result_ptr as *mut u8, result_len)
         }
     }};
-}
+}*/
 
 pub mod prelude {
     pub use crate::memory::WasmMemory;
@@ -82,7 +82,7 @@ pub mod prelude {
     extern "C" {
         pub fn get(key_ptr: i32, key_len: i32) -> (i32, i32);
         pub fn put(key_ptr: i32, key_len: i32, value_ptr: i32, value_len: i32);
-        pub fn call(wasm_ptr: i32, wasm_len: i32, input_ptr: i32, input_len: i32) -> (i32, i32);
+        //pub fn call(wasm_ptr: i32, wasm_len: i32, input_ptr: i32, input_len: i32) -> (i32, i32);
     }
 
     // Allocation function for WebAssembly
