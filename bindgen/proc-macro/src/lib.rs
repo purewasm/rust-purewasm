@@ -16,12 +16,6 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
         syn::FnArg::Typed(PatType { ty, .. }) => ty,
         _ => unreachable!()
     };
-
-    let output_type = match &function.sig.output {
-        syn::ReturnType::Type(_, ty) => ty,
-        _ => unreachable!()
-    };
-    
     
     let output = quote! {
         pub mod #function_name {
@@ -34,16 +28,16 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
             #[no_mangle]
             pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> (i32, i32) {
                 let memory = WasmMemory {
-                    codec: purewasm::CodecImpl{},
+                    codec: purewasm_bindgen::CodecImpl{},
                 };
-                let input: Result<#input_type, String> = memory.from_memory(ptr, len);
+                let input: Result<#input_type, WasmError> = memory.from_memory(ptr, len);
                 if let Ok(input) = input {
                     let result = inner::#function_name(input);
-                    memory.to_memory(result)
-                } else {
-                    let r: #output_type = Err("NO_INPUT".into());
-                    return memory.to_memory(r);
-                }
+                    if let Ok(result) = memory.to_memory(result){
+                        return result;
+                    }
+                } 
+                (0, 0)
             }
         }
     };

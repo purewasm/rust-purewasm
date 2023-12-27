@@ -1,9 +1,0 @@
-[package]
-name = "purewasm-cbor-runtime"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-purewasm = { path = "../../../", features = ["wasmtime"] }
-purewasm-cbor = { path = "../../../codec/cbor" }
-purewasm-cbor-core = { path = "../core" }

@@ -2,10 +2,10 @@ use std::sync::Arc;
 
 use wasmtime::{Caller, Memory, Extern, TypedFunc};
 
-use crate::KvStore;
+use crate::LedgerStore;
 
 pub fn get_fn(
-    kv_store: Arc<dyn KvStore>,
+    kv_store: Arc<dyn LedgerStore>,
     mut caller: Caller<'_, ()>,
     ptr: i32,
     len: i32,

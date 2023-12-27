@@ -10,11 +10,18 @@ readme = "README.md"
 keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
 categories = ["webassembly"]
 
+[features]
+cbor = ["dep:purewasm-cbor"]
+json = ["dep:purewasm-json"]
+
 [dependencies]
+cfg-if = "1.0.0"
 lol_alloc = "0.4.0"
 purewasm-proc-macro = { workspace = true }
+purewasm-core = { workspace = true}
+purewasm-cbor = { workspace = true, optional = true}
+purewasm-json = { workspace = true, optional = true}
 serde = { workspace = true, default-features = false, features = [
     "derive",
     "alloc",
 ] }
-

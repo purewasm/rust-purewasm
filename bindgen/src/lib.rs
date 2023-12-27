@@ -1,19 +1,17 @@
-#![allow(warnings)]
 #![cfg_attr(not(test), no_std)]
+#![allow(warnings)]
 extern crate alloc;
 
-pub mod codec;
-pub mod memory;
 pub use lol_alloc;
-pub use purewasm_proc_macro::purewasm_bindgen;
 pub use serde;
+pub use purewasm_proc_macro::purewasm_bindgen;
 
 #[macro_export]
 macro_rules! get {
     ($key:expr) => {{
         unsafe {
             let memory = WasmMemory {
-                codec: purewasm::CodecImpl{},
+                codec: purewasm_bindgen::CodecImpl {},
             };
             let (result_ptr, result_len) = get($key.as_ptr() as i32, $key.len() as i32);
             memory.from_memory(result_ptr as *mut u8, result_len)
@@ -26,40 +24,58 @@ macro_rules! put {
     ($key:expr, $value: expr) => {{
         unsafe {
             let memory = WasmMemory {
-                codec: purewasm::CodecImpl{},
+                codec: purewasm_bindgen::CodecImpl {},
             };
-            let (value_ptr, value_len) = memory.to_memory($value);
-            put($key.as_ptr() as i32, $key.len() as i32, value_ptr, value_len);
+            let (value_ptr, value_len) = memory.to_memory($value)?;
+            put(
+                $key.as_ptr() as i32,
+                $key.len() as i32,
+                value_ptr,
+                value_len,
+            );
         }
     }};
 }
 
-/*#[macro_export]
-macro_rules! call {
-    ($wasmid:expr, $input: expr) => {{
+#[macro_export]
+macro_rules! get_events {
+    ($key:expr) => {{
         unsafe {
             let memory = WasmMemory {
-                codec: purewasm::CodecImpl{},
+                codec: purewasm_bindgen::CodecImpl {},
             };
-            let wasm_ptr = $wasmid.as_ptr() as i32;
-            let wasm_len = $wasmid.len() as i32;
-            let (input_ptr, input_len) = memory.to_memory($input);
-            let (result_ptr, result_len) = call(wasm_ptr, wasm_len, input_ptr, input_len);
+            let (result_ptr, result_len) = get_events($key.as_ptr() as i32, $key.len() as i32);
             memory.from_memory(result_ptr as *mut u8, result_len)
         }
     }};
-}*/
+}
 
+#[macro_export]
+macro_rules! push_event {
+    ($key:expr, $value: expr) => {{
+        unsafe {
+            let memory = WasmMemory {
+                codec: purewasm_bindgen::CodecImpl {},
+            };
+            let (value_ptr, value_len) = memory.to_memory($value)?;
+            push_event(
+                $key.as_ptr() as i32,
+                $key.len() as i32,
+                value_ptr,
+                value_len,
+            );
+        }
+    }};
+}
 pub mod prelude {
-    pub use crate::memory::WasmMemory;
     pub use crate::purewasm_bindgen;
-    pub use crate::codec::Codec;
     pub use crate::*;
     pub use alloc::{
         boxed::Box,
         string::{String, ToString},
         vec::Vec,
     };
+    pub use purewasm_core::{codec::Codec, error::WasmError, memory::WasmMemory};
     pub use serde::de::DeserializeOwned;
 
     // Import allocator for WebAssembly
@@ -82,7 +98,8 @@ pub mod prelude {
     extern "C" {
         pub fn get(key_ptr: i32, key_len: i32) -> (i32, i32);
         pub fn put(key_ptr: i32, key_len: i32, value_ptr: i32, value_len: i32);
-        //pub fn call(wasm_ptr: i32, wasm_len: i32, input_ptr: i32, input_len: i32) -> (i32, i32);
+        pub fn get_events(key_ptr: i32, key_len: i32) -> (i32, i32);
+        pub fn push_event(key_ptr: i32, key_len: i32, value_ptr: i32, value_len: i32);
     }
 
     // Allocation function for WebAssembly
@@ -100,5 +117,15 @@ pub mod prelude {
         unsafe {
             drop(Box::from_raw(ptr));
         }
+    }
+}
+
+cfg_if::cfg_if! {
+    if #[cfg(feature = "cbor")] {
+        pub type CodecImpl = purewasm_cbor::CborCodec;
+    }else if #[cfg(feature = "json")]{
+        pub type CodecImpl = purewasm_json::JsonCodec;
+    }else {
+        compile_error!("Please enable one of the following features: cbor, json");
     }
 }

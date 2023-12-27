@@ -1,8 +1,8 @@
 [package]
-name = "purewasm-runtime"
+name = "purewasm-core"
 version = "0.1.0"
 edition = "2021"
-description = "Pure WASM runtime"
+description = "Pure WASM bindings"
 authors = ["adem caglin<adem.caglin@gmail.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/purewasm/rust-purewasm"
@@ -11,8 +11,6 @@ keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
 categories = ["webassembly"]
 
 [dependencies]
-anyhow = "1.0.77"
-thiserror = "1.0.52"
 serde = { workspace = true, default-features = false, features = [
     "derive",
     "alloc",

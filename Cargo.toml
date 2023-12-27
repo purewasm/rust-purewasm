@@ -12,18 +12,14 @@ categories = ["webassembly"]
 
 [workspace]
 members = [
-    "bindgen/codec/cbor",
-    "bindgen/codec/json",
+    "core",
+    "codec/cbor",
+    "codec/json",
     "bindgen",
+    "runtime",
     "runtime/wasmtime",
-    "examples/module"
+    "examples/module",
 ]
-
-[features]
-bindgen = ["purewasm-bindgen"]
-bindgen-cbor = ["dep:purewasm-cbor"]
-bindgen-json = ["dep:purewasm-json"]
-wasmtime = ["purewasm-wasmtime"]
 
 [profile.release]
 lto = true
@@ -32,16 +28,17 @@ strip = "symbols"
 
 [dependencies]
 purewasm-cbor = { workspace = true, optional = true }
-purewasm-json = { workspace = true, optional = true }
 purewasm-bindgen = { workspace = true, optional = true }
-purewasm-wasmtime = { workspace = true, optional = true }
-cfg-if = "1.0.0"
+purewasm-runtime = { workspace = true, optional = true }
 
 [workspace.dependencies]
 serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
+purewasm-cbor = { path = "codec/cbor", version = "0.1.0" }
+purewasm-json = { path = "codec/json", version = "0.1.0" }
+purewasm-core = { path = "core", version = "0.1.0" }
 purewasm-proc-macro = { path = "bindgen/proc-macro", version = "0.1.0" }
-purewasm-cbor = { path = "bindgen/codec/cbor", version = "0.1.0" }
-purewasm-json = { path = "bindgen/codec/json", version = "0.1.0" }
 purewasm-bindgen = { path = "bindgen", version = "0.1.0" }
-purewasm-wasmtime = { path = "runtime/wasmtime", version = "0.1.0" }
+purewasm-runtime = { path = "runtime", version = "0.1.0" }
+#purewasm-runtime-wasmtime = { path = "runtime/wasmtime", version = "0.1.0" }
+
 

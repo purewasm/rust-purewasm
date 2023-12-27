@@ -1,8 +1,8 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 
-use alloc::{string::String, vec::Vec};
-use purewasm_bindgen::codec::Codec;
+use alloc::vec::Vec;
+use purewasm_core::{codec::Codec, error::WasmError};
 use serde::{de::DeserializeOwned, Serialize};
 
 pub struct CborCodec;
@@ -12,18 +12,18 @@ impl Codec for CborCodec {
         0x51
     }
 
-    fn to_bytes<T: Serialize>(&self, t: &T) -> Result<Vec<u8>, String> {
+    fn to_bytes<T: Serialize>(&self, t: &T) -> Result<Vec<u8>, WasmError> {
         let mut bytes: Vec<u8> = Vec::new();
         if let Err(_) = ciborium::into_writer(&t, &mut bytes) {
-            return Err("CBOR_SERIALIZE_ERROR".into());
+            return Err(WasmError::SerializeError);
         }
         Ok(bytes)
     }
 
-    fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, String> {
+    fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, WasmError> {
         match ciborium::from_reader(bytes) {
             Ok(t) => Ok(t),
-            Err(_) => Err("CBOR_DESERIALIZE_ERROR".into()),
+            Err(_) => Err(WasmError::DeserializeError),
         }
     }
 }

@@ -1,9 +1,9 @@
 #![no_main]
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
-use purewasm::bindgen::prelude::*;
+use purewasm_bindgen::prelude::*;
 
-use alloc::{format, string::String};
+use alloc::string::String;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -23,7 +23,8 @@ pub struct CustomResult {
 }
 
 #[purewasm_bindgen]
-pub fn handle_example(input: Input) -> Result<CustomResult, String> {
+pub fn handle_example(input: Input) -> Result<(), WasmError> {
+
     put!(
         "profile",
         Profile {
@@ -32,9 +33,6 @@ pub fn handle_example(input: Input) -> Result<CustomResult, String> {
         }
     );
     let profile: Profile = get!("profile")?;
-    let msg = format!(
-        "The input code is {} and the name is {} and the age is {}",
-        input.code, profile.name, profile.age
-    );
-    Ok(CustomResult { msg: msg })
+
+    Ok(())
 }

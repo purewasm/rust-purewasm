@@ -2,10 +2,10 @@ use std::sync::Arc;
 
 use wasmtime::Caller;
 
-use crate::KvStore;
+use crate::LedgerStore;
 
 pub fn put_fn(
-    kv_store: Arc<dyn KvStore>,
+    ledger_store: Arc<dyn LedgerStore>,
     mut caller: Caller<'_, ()>,
     ptr: i32,
     len: i32,
