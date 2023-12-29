@@ -1,32 +1,28 @@
-use std::{sync::Mutex, collections::HashMap};
+use std::{collections::HashMap, sync::Mutex};
 
-/*use purewasm_runtime::{LedgerStore, error::RuntimeError};
+use purewasm_runtime::{error::RuntimeError, LedgerStore};
 
 struct InMemoryStore {
-   state: Mutex<HashMap<String, Vec<u8>>>
+    state: Mutex<HashMap<String, Vec<u8>>>,
 }
 
 impl LedgerStore for InMemoryStore {
-    fn get(&self, key: &str) -> Result<Vec<u8>, RuntimeError> {
-        todo!()
+    fn get(&self, key: &str) -> Option<Vec<u8>> {
+        let state = self.state.lock().unwrap();
+        let value = state.get(key)?;
+        Some(value.to_owned())
     }
 
     fn put(&self, key: &str, value: &[u8]) -> Result<(), RuntimeError> {
-        todo!()
-    }
-
-    fn get_events(&self, key: &str) -> Result<Vec<Vec<u8>>, RuntimeError> {
-        todo!()
-    }
-
-    fn push_event(&self, key: &str, event: &[u8]) -> Result<(), RuntimeError> {
-        todo!()
+        let mut state = self.state.lock().unwrap();
+        state.insert(key.to_string(), value.to_vec());
+        Ok(())
     }
 
     fn commit(&self) -> Result<(), RuntimeError> {
-        todo!()
+        Ok(())
     }
-}*/
+}
 fn main() {
     println!("Hello, world!");
 }

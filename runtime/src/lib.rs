@@ -19,9 +19,7 @@ pub struct Wasmsg {
 }
 
 pub trait LedgerStore {
-    fn get(&self, key: &str) -> Result<Vec<u8>, RuntimeError>;
+    fn get(&self, key: &str) -> Option<Vec<u8>>;
     fn put(&self, key: &str, value: &[u8]) -> Result<(), RuntimeError>;
-    fn get_events(&self, key: &str) -> Result<Vec<Vec<u8>>, RuntimeError>;
-    fn push_event(&self, key: &str, event: &[u8]) -> Result<(), RuntimeError>;
     fn commit(&self) -> Result<(), RuntimeError>;
 }

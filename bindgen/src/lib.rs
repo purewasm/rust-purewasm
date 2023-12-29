@@ -13,7 +13,7 @@ macro_rules! get {
             let memory = WasmMemory {
                 codec: purewasm_bindgen::CodecImpl {},
             };
-            let (result_ptr, result_len) = get($key.as_ptr() as i32, $key.len() as i32);
+            let (result_ptr, result_len) =  get($key.as_ptr() as i32, $key.len() as i32);
             memory.from_memory(result_ptr as *mut u8, result_len)
         }
     }};
@@ -37,36 +37,6 @@ macro_rules! put {
     }};
 }
 
-#[macro_export]
-macro_rules! get_events {
-    ($key:expr) => {{
-        unsafe {
-            let memory = WasmMemory {
-                codec: purewasm_bindgen::CodecImpl {},
-            };
-            let (result_ptr, result_len) = get_events($key.as_ptr() as i32, $key.len() as i32);
-            memory.from_memory(result_ptr as *mut u8, result_len)
-        }
-    }};
-}
-
-#[macro_export]
-macro_rules! push_event {
-    ($key:expr, $value: expr) => {{
-        unsafe {
-            let memory = WasmMemory {
-                codec: purewasm_bindgen::CodecImpl {},
-            };
-            let (value_ptr, value_len) = memory.to_memory($value)?;
-            push_event(
-                $key.as_ptr() as i32,
-                $key.len() as i32,
-                value_ptr,
-                value_len,
-            );
-        }
-    }};
-}
 pub mod prelude {
     pub use crate::purewasm_bindgen;
     pub use crate::*;
@@ -98,8 +68,6 @@ pub mod prelude {
     extern "C" {
         pub fn get(key_ptr: i32, key_len: i32) -> (i32, i32);
         pub fn put(key_ptr: i32, key_len: i32, value_ptr: i32, value_len: i32);
-        pub fn get_events(key_ptr: i32, key_len: i32) -> (i32, i32);
-        pub fn push_event(key_ptr: i32, key_len: i32, value_ptr: i32, value_len: i32);
     }
 
     // Allocation function for WebAssembly
