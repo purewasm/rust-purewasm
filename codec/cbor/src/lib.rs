@@ -1,7 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 
-use alloc::vec::Vec;
+use alloc::{format, vec::Vec};
 use purewasm_core::{codec::Codec, error::WasmError};
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -23,7 +23,7 @@ impl Codec for CborCodec {
     fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, WasmError> {
         match ciborium::from_reader(bytes) {
             Ok(t) => Ok(t),
-            Err(_) => Err(WasmError::DeserializeError),
+            Err(e) => Err(WasmError::DeserializeError(format!("{:?} bytes: {:?}", e, bytes.to_vec()))),
         }
     }
 }

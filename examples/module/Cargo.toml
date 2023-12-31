@@ -12,5 +12,7 @@ opt-level = "z"
 strip = "symbols"
 
 [dependencies]
+rkyv = { version = "0.7.43", default-features = false, features = ["size_32", "alloc", "validation"] }
+purewasm-cbor = { path = "../../codec/cbor" }
 purewasm-bindgen = { path = "../../bindgen", features = ["cbor"] }
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }

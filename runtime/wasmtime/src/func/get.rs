@@ -31,7 +31,7 @@ pub fn get_fn(
     };
 
     let alloc_func: TypedFunc<i32, i32> = alloc.typed::<i32, i32>(&caller).unwrap();
-    let value = kv_store.get(&key).unwrap();
+    let value = kv_store.get(&key);
     let value_len = value.len() as i32;
     let value_ptr = alloc_func.call(&mut caller, value_len).unwrap();
     let mem_data = memory.data_mut(&mut caller);

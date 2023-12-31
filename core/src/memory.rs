@@ -1,5 +1,4 @@
 use serde::{de::DeserializeOwned, Serialize};
-
 use crate::{codec::Codec, error::WasmError};
 
 pub struct WasmMemory<C: Codec> {
@@ -19,7 +18,8 @@ impl<C: Codec> WasmMemory<C> {
         ptr: *mut u8,
         len: i32,
     ) -> Result<T, WasmError> {
-        let bytes = core::slice::from_raw_parts(ptr, len as usize);
-        C::from_bytes(bytes)
+        // 'to_vec' will copy the data because slice might cause memory leak
+        let bytes = core::slice::from_raw_parts(ptr, len as usize).to_vec();
+        C::from_bytes(&bytes)
     }
 }

@@ -15,6 +15,7 @@ pub struct User {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+
 pub struct CreateUserInput {
     pub username: String,
     pub name: String,
@@ -30,7 +31,7 @@ pub struct UserCreatedEvent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeleteUserInput {
     pub username: String,
-    pub deleted_at: i64
+    pub deleted_at: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,17 +45,10 @@ pub enum UserEvent {
     Deleted(UserDeleteddEvent),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Profile {
-    pub username: String,
-    pub name: String,
-    pub events: Vec<UserEvent>,
-}
-
 #[purewasm_bindgen]
 pub fn create(input: CreateUserInput) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
-    let exist: Option<User> = get!(key)?;
+    let exist = get!(key, User);
     if exist.is_some() {
         return Err(WasmError::Other("exist".to_string()));
     }
@@ -77,8 +71,8 @@ pub fn create(input: CreateUserInput) -> Result<(), WasmError> {
 #[purewasm_bindgen]
 pub fn delete(input: DeleteUserInput) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
-    let user: Option<User> = get!(key)?;
-    if let Some(mut user) = user {
+    let exist = get!(key, User);
+    if let Some(mut user) = exist {
         // check if user already deleted
         if user.events.iter().any(|e| match e {
             UserEvent::Deleted { .. } => true,

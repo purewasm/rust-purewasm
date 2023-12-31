@@ -7,7 +7,7 @@ pub enum WasmError {
     NotFound,
     NoInput, 
     SerializeError,
-    DeserializeError,
+    DeserializeError(String),
     HostError,
     Other(String),
 }

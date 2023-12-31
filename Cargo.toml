@@ -27,18 +27,27 @@ opt-level = "z"
 strip = "symbols"
 
 [dependencies]
-purewasm-cbor = { workspace = true, optional = true }
-purewasm-bindgen = { workspace = true, optional = true }
+wasmtime = "12.0.1"
+purewasm-core = { version = "0.1.0", path = "core" }
+purewasm-cbor = { version = "0.1.0", path = "codec/cbor"  }
+
+serde = { workspace = true, default-features = false, features = [
+    "derive",
+    "alloc",
+] }
 purewasm-runtime = { workspace = true, optional = true }
+purewasm-runtime-wasmtime = { workspace = true, optional = true }
+
 
 [workspace.dependencies]
-serde = { version = "1.0.188", default-features = false, features = ["derive", "alloc"] }
+serde = { version = "1.0.188", default-features = false, features = [
+    "derive",
+    "alloc",
+] }
 purewasm-cbor = { path = "codec/cbor", version = "0.1.0" }
 purewasm-json = { path = "codec/json", version = "0.1.0" }
 purewasm-core = { path = "core", version = "0.1.0" }
 purewasm-proc-macro = { path = "bindgen/proc-macro", version = "0.1.0" }
 purewasm-bindgen = { path = "bindgen", version = "0.1.0" }
 purewasm-runtime = { path = "runtime", version = "0.1.0" }
-#purewasm-runtime-wasmtime = { path = "runtime/wasmtime", version = "0.1.0" }
-
-
+purewasm-runtime-wasmtime = { path = "runtime/wasmtime", version = "0.1.0" }
