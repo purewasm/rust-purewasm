@@ -96,15 +96,19 @@ impl WasmRuntime {
             .get_memory(&mut store, "memory")
             .ok_or_else(|| RuntimeError::NoneError)?;
         let alloc_func = instance.get_typed_func::<i32, i32>(&mut store, "alloc")?;
+        let de_alloc_func = instance.get_typed_func::<i32, ()>(&mut store, "de_alloc")?;
+        
         let input_bytes = wasmsg.input.clone();
         let input_bytes_len = input_bytes.len() as i32;
         let input_bytes_ptr = alloc_func.call(&mut store, input_bytes_len)?;
         memory
-            .write(&mut store, input_bytes_ptr as usize, &input_bytes)
-            .unwrap();
+            .write(&mut store, input_bytes_ptr as usize, &input_bytes).unwrap();
 
         let func = instance.get_typed_func::<(i32, i32), (i32, i32)>(&mut store, &wasmsg.method)?;
         let result = func.call(&mut store, (input_bytes_ptr, input_bytes_len))?;
+        de_alloc_func.call(&mut store, result.0)?;
+
+        //unsafe { drop(Box::from_raw(result.0 as *mut u8)) };
         println!("Result: {:?}", result);
         Ok(())
     }

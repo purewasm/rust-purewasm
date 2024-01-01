@@ -15,7 +15,6 @@ pub struct User {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-
 pub struct CreateUserInput {
     pub username: String,
     pub name: String,
@@ -46,11 +45,11 @@ pub enum UserEvent {
 }
 
 #[purewasm_bindgen]
-pub fn create(input: CreateUserInput) -> Result<(), WasmError> {
+pub fn create(input: CreateUserInput, signers: Vec<String>) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
     let exist = get!(key, User);
     if exist.is_some() {
-        return Err(WasmError::Other("exist".to_string()));
+        return Err(WasmError::code("USER_EXIST"));
     }
     let event = UserEvent::Created(UserCreatedEvent {
         name: input.name.clone(),
@@ -69,7 +68,7 @@ pub fn create(input: CreateUserInput) -> Result<(), WasmError> {
 }
 
 #[purewasm_bindgen]
-pub fn delete(input: DeleteUserInput) -> Result<(), WasmError> {
+pub fn delete(input: DeleteUserInput, signers: Vec<String>) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
     let exist = get!(key, User);
     if let Some(mut user) = exist {
@@ -78,11 +77,11 @@ pub fn delete(input: DeleteUserInput) -> Result<(), WasmError> {
             UserEvent::Deleted { .. } => true,
             _ => false,
         }){
-            return Err(WasmError::Other("already deleted".to_string()));
+            return Err(WasmError::code("already deleted"));
         }
         user.events.push(UserEvent::Deleted(UserDeleteddEvent { at: input.deleted_at }));
         put!(&key, user);
         return Ok(());
     }
-    Err(WasmError::NotFound)
+    Err(WasmError::code("NOT_FOUND"))
 }

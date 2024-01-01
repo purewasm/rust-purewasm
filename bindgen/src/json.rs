@@ -1,8 +1,10 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 use alloc::{format, vec::Vec};
-use purewasm_core::{codec::Codec, error::WasmError};
+use purewasm_core::error::WasmError;
 use serde::{de::DeserializeOwned, Serialize};
+
+use crate::codec::Codec;
 
 pub struct JsonCodec;
 
@@ -15,14 +17,17 @@ impl Codec for JsonCodec {
         let r = serde_json::to_vec(t);
         match r {
             Ok(t) => Ok(t),
-            Err(_) => Err(WasmError::SerializeError),
+            Err(e) => Err(WasmError::new("JSON_SERIALIZE_ERROR", &format!("{:?}", e))),
         }
     }
 
     fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, WasmError> {
         match serde_json::from_slice(bytes) {
             Ok(t) => Ok(t),
-            Err(e) => Err(WasmError::DeserializeError(format!("{:?}", e))),
+            Err(e) => Err(WasmError::new(
+                "JSON_DESERIALIZE_ERROR",
+                &format!("{:?}", e),
+            )),
         }
     }
 }

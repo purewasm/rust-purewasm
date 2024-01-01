@@ -14,7 +14,10 @@ pub fn put_fn(
         Some(Extern::Memory(mem)) => mem,
         _ => panic!("`memory` export not found"),
     };
-
+    let de_alloc = match caller.get_export("de_alloc") {
+        Some(Extern::Func(func)) => func,
+        _ => panic!("`de_alloc` export not found"),
+    };
     let key = {
         let mem_data = memory.data(&caller);
         let key = std::str::from_utf8(

@@ -3,8 +3,6 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use purewasm_cbor::CborCodec;
-use purewasm_core::codec::Codec;
 use purewasm_runtime::{error::RuntimeError, LedgerStore};
 use purewasm_runtime_wasmtime::WasmRuntime;
 use serde::{Deserialize, Serialize};
@@ -67,8 +65,7 @@ impl LedgerStore for InMemoryStore {
 
     fn commit(&self) -> Result<(), RuntimeError> {
         Ok(())
-    }
-}
+    }}
 fn main() {
     let mut runtime = WasmRuntime::new();
     let store = Arc::new(InMemoryStore {
@@ -92,26 +89,30 @@ fn main() {
         name: "adem caglin".to_string(),
         birthday: 145,
     };
-    let codec = CborCodec {};
-    let input = codec.to_bytes(&input).unwrap();
+    let mut input_bytes: Vec<u8> = vec![];
+    ciborium::into_writer(&input, &mut input_bytes).unwrap();
     let msg = purewasm_runtime::Wasmsg {
         method: "create".to_string(),
-        input: input,
+        input: input_bytes,
+        proof: vec![]
     };
     let dinput = DeleteUserInput {
         username: "ademcaglin".to_string(),
-        deleted_at: 45
+        deleted_at: 45,
     };
-    let dinput = codec.to_bytes(&dinput).unwrap();
+    let mut dinput_bytes: Vec<u8> = vec![];
+    ciborium::into_writer(&dinput, &mut dinput_bytes).unwrap();
     let dmsg = purewasm_runtime::Wasmsg {
         method: "delete".to_string(),
-        input: dinput,
+        input: dinput_bytes,
+        proof: vec![]
     };
     block.messages.insert("test_module".to_string(), vec![msg, dmsg]);
     runtime.handle(block).unwrap();
 
-    //let r: Result<CreateUserInput, WasmError> = CborCodec::from_bytes(&r);
+    //let r: Result<CeateUserInput, WasmError> = CborCodec::from_bytes(&r);
     let state = store.state.lock().unwrap();
-    let user: User = CborCodec::from_bytes(state.get("/users/ademcaglin").unwrap()).unwrap();
+    let key = state.get("/users/ademcaglin").unwrap();
+    let user: User = ciborium::from_reader(key.as_slice()).unwrap();
     println!("User: {:?}", user);
 }

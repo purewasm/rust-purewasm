@@ -16,6 +16,7 @@ pub struct WasmBlock {
 pub struct Wasmsg {
     pub method: String,
     pub input: Vec<u8>,
+    pub proof: Vec<u8>,
 }
 
 pub trait LedgerStore {

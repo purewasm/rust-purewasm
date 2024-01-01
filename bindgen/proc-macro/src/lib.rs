@@ -6,15 +6,19 @@ use syn::{parse_macro_input, ItemFn, PatType};
 pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
     let function = parse_macro_input!(input as ItemFn);
     let function_name = &function.sig.ident;
-    if function.sig.inputs.len() != 1 {
+    if function.sig.inputs.len() != 2 {
         return TokenStream::from(quote! {
-            compile_error!("There should be one(only) input parameter");
+            compile_error!("Expected two arguments in the function signature");
         });
     }
-
     let input_type = match &function.sig.inputs[0] {
         syn::FnArg::Typed(PatType { ty, .. }) => ty,
         _ => unreachable!(),
+    };
+
+    let output_type = match &function.sig.output {
+        syn::ReturnType::Type(_, ty) => ty,
+        _ => unreachable!()
     };
 
     let output = quote! {
@@ -27,17 +31,19 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
 
             #[no_mangle]
             pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> (i32, i32) {
-                let memory = WasmMemory {
-                    codec: purewasm_bindgen::CodecImpl,
-                };
-                let handle_fn = |ptr: *mut u8, len: i32| -> Result<(), WasmError> {
+                let handle_fn = |ptr: *mut u8, len: i32| -> #output_type {
                     unsafe {
-                        let input: #input_type = memory.from_memory(ptr, len)?;
-                        inner::#function_name(input)
+                        let cbor_memory = WasmMemory {
+                            codec: CborCodec,
+                        };
+                        let msg: WasmsgParam = cbor_memory.from_memory(ptr, len)?;
+                        let input: #input_type = CodecImpl::from_bytes(&msg.input)?;
+                        inner::#function_name(input, msg.signers)
                     }
                 };
                 let result = handle_fn(ptr, len);
-                memory.to_memory(result).unwrap()
+                unsafe { drop(Box::from_raw(ptr)); }
+                WasmMemory { codec: CodecImpl }.to_memory(result).unwrap()
             }
         }
     };

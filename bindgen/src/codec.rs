@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::error::WasmError;
+use purewasm_core::error::WasmError;
 
 pub trait Codec {
     fn code(&self) -> i64;

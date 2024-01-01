@@ -2,6 +2,12 @@
 #![allow(warnings)]
 extern crate alloc;
 
+mod cbor;
+mod codec;
+#[cfg(feature = "json")]
+mod json;
+mod memory;
+
 pub use lol_alloc;
 pub use purewasm_proc_macro::purewasm_bindgen;
 pub use serde;
@@ -11,13 +17,13 @@ macro_rules! get {
     ($key:expr, $ty:ty) => {{
         unsafe {
             let memory = WasmMemory {
-                codec: purewasm_bindgen::CodecImpl {},
+                codec: CodecImpl {},
             };
             let (result_ptr, result_len) = get($key.as_ptr() as i32, $key.len() as i32);
             let value: Option<$ty> = if result_len == 0 {
-                 None
-            }else {
-                Some(memory.from_memory(result_ptr as *mut u8, result_len)?)   
+                None
+            } else {
+                Some(memory.from_memory(result_ptr as *mut u8, result_len)?)
             };
             value
         }
@@ -29,7 +35,7 @@ macro_rules! put {
     ($key:expr, $value: expr) => {{
         unsafe {
             let memory = WasmMemory {
-                codec: purewasm_bindgen::CodecImpl {},
+                codec: CodecImpl {},
             };
             let (value_ptr, value_len) = memory.to_memory($value)?;
             put(
@@ -43,16 +49,23 @@ macro_rules! put {
 }
 
 pub mod prelude {
+    pub use crate::cbor::CborCodec;
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "json")]{
+            pub use crate::json::JsonCodec as CodecImpl;
+        }else {
+            pub use crate::cbor::CborCodec as CodecImpl;
+        }
+    }
     pub use crate::purewasm_bindgen;
-    pub use crate::*;
+    pub use crate::{codec::Codec, get, memory::WasmMemory, put};
     pub use alloc::{
         boxed::Box,
         string::{String, ToString},
         vec::Vec,
     };
-    pub use purewasm_core::{codec::Codec, error::WasmError, memory::WasmMemory};
+    pub use purewasm_core::{error::WasmError, WasmsgParam};
     pub use serde::de::DeserializeOwned;
-
     // Import allocator for WebAssembly
     #[cfg(target_arch = "wasm32")]
     use crate::lol_alloc::{AssumeSingleThreaded, FreeListAllocator};
@@ -80,10 +93,6 @@ pub mod prelude {
     pub extern "C" fn alloc(len: usize) -> *mut u8 {
         let mut byte_array: Vec<u8> = Vec::with_capacity(len);
         let ptr = byte_array.as_mut_ptr();
-        /*unsafe {
-            byte_array.set_len(len);
-        }*/
-        let ptr = byte_array.as_mut_ptr();
         core::mem::forget(ptr);
         ptr
     }
@@ -97,12 +106,4 @@ pub mod prelude {
     }
 }
 
-cfg_if::cfg_if! {
-    if #[cfg(feature = "cbor")] {
-        pub use purewasm_cbor::CborCodec as CodecImpl;
-    }else if #[cfg(feature = "json")]{
-        pub use purewasm_json::JsonCodec as CodecImpl;
-    }else {
-        compile_error!("Please enable one of the following features: cbor, json");
-    }
-}
+
