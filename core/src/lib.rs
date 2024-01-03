@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WasmsgParam {
-    pub input: Vec<u8>,
+    pub payload: Vec<u8>,
     pub signers: Vec<String>,
 }
 

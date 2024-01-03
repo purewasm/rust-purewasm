@@ -14,6 +14,7 @@ categories = ["webassembly"]
 members = [
     "core",
     "bindgen",
+    "handler",
     "runtime",
     "runtime/wasmtime",
     "examples/module",
@@ -35,7 +36,6 @@ serde = { workspace = true, default-features = false, features = [
 ] }
 purewasm-runtime = { workspace = true, optional = true }
 purewasm-runtime-wasmtime = { workspace = true, optional = true }
-
 
 [workspace.dependencies]
 serde = { version = "1.0.193", default-features = false, features = [

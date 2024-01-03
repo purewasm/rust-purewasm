@@ -1,0 +1,20 @@
+[package]
+name = "wasmledger-handler"
+version = "0.1.0"
+edition = "2021"
+description = "Pure WASM handler"
+authors = ["adem caglin<adem.caglin@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/purewasm/rust-purewasm"
+readme = "README.md"
+keywords = ["idp2p", "wasm", "webassembly", "wasmtime"]
+categories = ["webassembly"]
+
+[dependencies]
+anyhow = "1.0.77"
+thiserror = "1.0.52"
+wasmtime = "16.0.0"
+serde = { workspace = true, default-features = false, features = [
+    "derive",
+    "alloc",
+] }

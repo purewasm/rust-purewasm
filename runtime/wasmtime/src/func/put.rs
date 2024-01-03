@@ -1,6 +1,6 @@
 use crate::LedgerStore;
 use std::sync::Arc;
-use wasmtime::{Caller, Extern, Memory, TypedFunc};
+use wasmtime::{Caller, Extern, Memory};
 
 pub fn put_fn(
     ledger_store: Arc<dyn LedgerStore>,
@@ -13,10 +13,6 @@ pub fn put_fn(
     let memory: Memory = match caller.get_export("memory") {
         Some(Extern::Memory(mem)) => mem,
         _ => panic!("`memory` export not found"),
-    };
-    let de_alloc = match caller.get_export("de_alloc") {
-        Some(Extern::Func(func)) => func,
-        _ => panic!("`de_alloc` export not found"),
     };
     let key = {
         let mem_data = memory.data(&caller);
