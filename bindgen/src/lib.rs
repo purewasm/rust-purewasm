@@ -2,11 +2,13 @@
 #![allow(warnings)]
 extern crate alloc;
 
-mod cbor;
 mod codec;
+#[cfg(feature = "cbor")]
+mod cbor;
 #[cfg(feature = "json")]
 mod json;
 mod memory;
+mod error;
 
 pub use lol_alloc;
 pub use purewasm_proc_macro::purewasm_bindgen;
@@ -49,12 +51,13 @@ macro_rules! put {
 }
 
 pub mod prelude {
-    pub use crate::cbor::CborCodec;
     cfg_if::cfg_if! {
         if #[cfg(feature = "json")]{
             pub use crate::json::JsonCodec as CodecImpl;
-        }else {
+        }else if #[cfg(feature = "cbor")]{
             pub use crate::cbor::CborCodec as CodecImpl;
+        }else {
+            compile_error!("Please enable one of the following features: cbor, json");
         }
     }
     pub use crate::purewasm_bindgen;
@@ -64,7 +67,7 @@ pub mod prelude {
         string::{String, ToString},
         vec::Vec,
     };
-    pub use purewasm_core::{error::WasmError, WasmsgParam};
+    pub use crate::error::WasmError;
     pub use serde::de::DeserializeOwned;
     // Import allocator for WebAssembly
     #[cfg(target_arch = "wasm32")]

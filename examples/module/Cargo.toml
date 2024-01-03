@@ -12,5 +12,5 @@ opt-level = "z"
 strip = "symbols"
 
 [dependencies]
-purewasm-bindgen = { path = "../../bindgen" }
+purewasm-bindgen = { path = "../../bindgen", features = ["cbor"]}
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }

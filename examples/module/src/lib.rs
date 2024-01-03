@@ -67,6 +67,7 @@ pub fn create(input: CreateUserInput, signers: Vec<String>) -> Result<(), WasmEr
     Ok(())
 }
 
+
 #[purewasm_bindgen]
 pub fn delete(input: DeleteUserInput, signers: Vec<String>) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
@@ -76,10 +77,12 @@ pub fn delete(input: DeleteUserInput, signers: Vec<String>) -> Result<(), WasmEr
         if user.events.iter().any(|e| match e {
             UserEvent::Deleted { .. } => true,
             _ => false,
-        }){
+        }) {
             return Err(WasmError::code("already deleted"));
         }
-        user.events.push(UserEvent::Deleted(UserDeleteddEvent { at: input.deleted_at }));
+        user.events.push(UserEvent::Deleted(UserDeleteddEvent {
+            at: input.deleted_at,
+        }));
         put!(&key, user);
         return Ok(());
     }

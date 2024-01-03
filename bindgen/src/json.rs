@@ -1,7 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
 use alloc::{format, vec::Vec};
-use purewasm_core::error::WasmError;
+use crate::error::WasmError;
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::codec::Codec;

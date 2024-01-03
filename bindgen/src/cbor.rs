@@ -3,7 +3,7 @@ extern crate alloc;
 
 use crate::codec::Codec;
 use alloc::{format, string::ToString, vec::Vec};
-use purewasm_core::error::WasmError;
+use crate::error::WasmError;
 use serde::{de::DeserializeOwned, Serialize};
 
 pub struct CborCodec;

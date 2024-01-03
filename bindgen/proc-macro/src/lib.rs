@@ -28,67 +28,44 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
             #[no_mangle]
             pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> (i32, i32) {
                 let handle_fn = |ptr: *mut u8, len: i32| -> Result<(), WasmError> {
-                    unsafe {
-                        let mut msg = core::slice::from_raw_parts(ptr, len as usize);
-                        let mut payload_len_buf = [0u8; 4];
-                        msg.read_exact(&mut payload_len_buf).unwrap();
-                        let payload_len = u32::from_le_bytes(payload_len_buf);
-                        let mut payload_buf: Vec<u8> = Vec::with_capacity(payload_len as usize);
-                        msg.read_exact(&mut payload_buf).unwrap();
-                        let payload: #input_type = CodecImpl::from_bytes(&payload_buf)?;
-                        let mut signers: Vec<String> = Vec::new();
-                        while msg.is_empty() == false {
-                            let mut signer_len_buf = [0u8; 2];
-                            msg.read_exact(&mut signer_len_buf).unwrap();
-                            let signer_len = u16::from_le_bytes(signer_len_buf);
-                            let mut signer_buf: Vec<u8> = Vec::with_capacity(signer_len as usize);
-                            msg.read_exact(&mut signer_buf).unwrap();
-                            signers.push(String::from_utf8(signer_buf).unwrap());
+                    unsafe {     
+                        let msg = core::slice::from_raw_parts(ptr, len as usize);
+                        let payload_len = &msg[..4];
+                        let payload_len = u32::from_le_bytes(payload_len.try_into().unwrap());
+                        let payload = msg[4..payload_len as usize + 4].to_vec();
+                        let payload: #input_type = CodecImpl::from_bytes(&payload)?;
+
+                        let mut signers = Vec::new();
+                        let mut index = payload_len as usize + 4;
+
+                        while index < msg.len() {
+                            let length_bytes = &msg[index..index + 4];
+                            let length = u32::from_le_bytes(length_bytes.try_into().unwrap()) as usize;
+
+                            index += 4;
+
+                            let slice = msg[index..index + length].to_vec();
+                            signers.push(String::from_utf8(slice).unwrap());
+
+                            index += length;
                         }
                         inner::#function_name(payload, signers)
                     }
                 };
                 let result = handle_fn(ptr, len);
                 unsafe { drop(Box::from_raw(ptr)); }
-                WasmMemory { codec: CodecImpl }.to_memory(result).unwrap()
+                match result {
+                    Ok(_) => (0, 0),
+                    Err(err) => {
+                        let mut err_str = err.code;
+                        if let Some(message) = err.message {
+                            err_str = format!("{} - {}", err_str, message);
+                        }
+                        return (err_str.as_ptr() as i32, err_str.len() as i32);
+                    },
+                }
             }
         }
     };
     output.into()
 }
-
-fn handle_fn(ptr: *mut u8, len: i32) -> Result<(), WasmError> {
-    unsafe {
-        let mut msg = core::slice::from_raw_parts(ptr, len as usize);
-        let mut payload_len = &msg[..4];
-        let payload_len = u32::from_le_bytes(payload_len.try_into().unwrap());
-        let payload_slice = &msg[4..payload_len as usize + 4];
-        let mut payload: Vec<u8> = Vec::with_capacity(payload_len as usize);
-
-        msg.read_exact(&mut payload_buf).unwrap();
-        let payload: String = String::from_utf8(signer_buf).unwrap();
-        let mut signers: Vec<String> = Vec::new();
-        while msg.is_empty() == false {
-            let mut signer_len_buf = [0u8; 2];
-            msg.read_exact(&mut signer_len_buf).unwrap();
-            let signer_len = u16::from_le_bytes(signer_len_buf);
-            let mut signer_buf: Vec<u8> = Vec::with_capacity(signer_len as usize);
-            msg.read_exact(&mut signer_buf).unwrap();
-            signers.push(String::from_utf8(signer_buf).unwrap());
-        }
-        Ok(())
-        //inner::#function_name(payload, signers)
-    }
-}
-/*
- let handle_fn = |ptr: *mut u8, len: i32| -> Result<(), WasmError> {
-                    unsafe {
-                        let msg = core::slice::from_raw_parts(ptr, len as usize);
-                        
-                        let msg: WasmsgParam =  
-                            WasmMemory { codec: CborCodec }.from_memory(ptr, len)?;
-                        let input: #input_type = CodecImpl::from_bytes(&msg.payload)?;
-                        inner::#function_name(input, msg.signers)
-                    }
-                };
-*/
