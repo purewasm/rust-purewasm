@@ -15,8 +15,6 @@ members = [
     "core",
     "bindgen",
     "handler",
-    "runtime",
-    "runtime/wasmtime",
     "examples/module",
 ]
 
@@ -27,15 +25,13 @@ strip = "symbols"
 
 [dependencies]
 wasmtime = { workspace = true }
-purewasm-core = { workspace = true }
 ciborium = { workspace = true, default-features = false }
 serde_json = { workspace = true, default-features = false, features = ["alloc"] }
 serde = { workspace = true, default-features = false, features = [
     "derive",
     "alloc",
 ] }
-purewasm-runtime = { workspace = true, optional = true }
-purewasm-runtime-wasmtime = { workspace = true, optional = true }
+wasmledger-handler = { workspace = true, optional = true }
 
 [workspace.dependencies]
 serde = { version = "1.0.193", default-features = false, features = [
@@ -47,8 +43,6 @@ wasmtime =  { version = "16.0.0" }
 anyhow = "1.0.77"
 thiserror = "1.0.52"
 serde_json = { version = "1.0.109", default-features = false, features = ["alloc"] }
-purewasm-core = { path = "core", version = "0.1.0" }
+wasmledger-handler = { path = "handler", version = "0.1.0" }
 purewasm-proc-macro = { path = "bindgen/proc-macro", version = "0.1.0" }
 purewasm-bindgen = { path = "bindgen", version = "0.1.0" }
-purewasm-runtime = { path = "runtime", version = "0.1.0" }
-purewasm-runtime-wasmtime = { path = "runtime/wasmtime", version = "0.1.0" }
