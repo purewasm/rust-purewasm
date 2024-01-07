@@ -44,5 +44,5 @@ anyhow = "1.0.77"
 thiserror = "1.0.52"
 serde_json = { version = "1.0.109", default-features = false, features = ["alloc"] }
 wasmledger-handler = { path = "handler", version = "0.1.0" }
-purewasm-proc-macro = { path = "bindgen/proc-macro", version = "0.1.0" }
-purewasm-bindgen = { path = "bindgen", version = "0.1.0" }
+wasmledger-bindgen-macro = { path = "bindgen/proc-macro", version = "0.1.0" }
+wasmledger-bindgen = { path = "bindgen", version = "0.1.0" }

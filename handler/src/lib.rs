@@ -2,10 +2,10 @@ mod error;
 mod func;
 mod store;
 
-use wasmtime::*;
-use crate::{error::RuntimeError, store::LedgerStore};
 use crate::func::{get::get_fn, put::put_fn};
+use crate::{error::RuntimeError, store::LedgerStore};
 use std::{collections::HashMap, sync::Arc};
+use wasmtime::*;
 
 type LedgerStoreArc = Arc<dyn LedgerStore + Send + Sync + 'static>;
 
@@ -38,7 +38,7 @@ impl WasmRuntime {
         Ok(())
     }
 
-    pub fn handle(&self, block: WasmBlock) -> Result<(), RuntimeError> {
+    /*pub fn handle(&self, block: WasmBlock) -> Result<(), RuntimeError> {
         let ledger = self
             .ledgers
             .get(&block.ledger)
@@ -62,13 +62,13 @@ impl WasmRuntime {
         self.handle_message(&block.ledger, block_module, &post_msg)?;*/
         ledger.commit().unwrap();
         Ok(())
-    }
+    }*/
 
     fn handle_message(
         &self,
         ledger: &str,
         module: &Module,
-        wasmsg: &Wasmsg,
+        wasmsg: &[u8],
     ) -> Result<(), RuntimeError> {
         let ledger = self
             .ledgers
@@ -87,25 +87,36 @@ impl WasmRuntime {
 
         let put_func = Func::wrap(
             &mut store,
-            move |caller: Caller<'_, ()>, key_ptr: i32, key_len: i32, value_ptr: i32, value_len: i32| {
-                put_fn(ledger_put.clone(), caller, key_ptr, key_len, value_ptr, value_len)
+            move |caller: Caller<'_, ()>,
+                  key_ptr: i32,
+                  key_len: i32,
+                  value_ptr: i32,
+                  value_len: i32| {
+                put_fn(
+                    ledger_put.clone(),
+                    caller,
+                    key_ptr,
+                    key_len,
+                    value_ptr,
+                    value_len,
+                )
             },
         );
-        let instance =
-            Instance::new(&mut store, &module, &[get_func.into(), put_func.into()])?;
+        let instance = Instance::new(&mut store, &module, &[get_func.into(), put_func.into()])?;
         let memory = instance
             .get_memory(&mut store, "memory")
-            .ok_or_else(|| RuntimeError::NoneError)?;
+            .ok_or_else(||RuntimeError::NoneError)?;
         let alloc_func = instance.get_typed_func::<i32, i32>(&mut store, "alloc")?;
         let de_alloc_func = instance.get_typed_func::<i32, ()>(&mut store, "de_alloc")?;
-        
-        let input_bytes = wasmsg.input.clone();
+
+        let input_bytes = wasmsg.clone();
         let input_bytes_len = input_bytes.len() as i32;
         let input_bytes_ptr = alloc_func.call(&mut store, input_bytes_len)?;
         memory
-            .write(&mut store, input_bytes_ptr as usize, &input_bytes).unwrap();
+            .write(&mut store, input_bytes_ptr as usize, &input_bytes)
+            .unwrap();
 
-        let func = instance.get_typed_func::<(i32, i32), (i32, i32)>(&mut store, &wasmsg.method)?;
+        let func = instance.get_typed_func::<(i32, i32), (i32, i32)>(&mut store, "handle")?;
         let result = func.call(&mut store, (input_bytes_ptr, input_bytes_len))?;
         de_alloc_func.call(&mut store, result.0)?;
 

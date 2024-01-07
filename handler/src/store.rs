@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+
+use crate::error::RuntimeError;
+
 #[derive(Clone, Debug)]
 pub struct WasmBlock {
     pub ledger: String,

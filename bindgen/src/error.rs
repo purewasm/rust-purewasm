@@ -1,8 +1,11 @@
-use alloc::string::{String, ToString };
-use serde::{Serialize, Deserialize};
+use alloc::{
+    format,
+    string::{String, ToString},
+};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct  WasmError {
+pub struct WasmError {
     pub code: String,
     pub message: Option<String>,
 }
@@ -19,5 +22,12 @@ impl WasmError {
             code: code.to_string(),
             message: Some(msg.to_string()),
         }
+    }
+
+    pub fn to_string(&self) -> String {
+        if let Some(msg) = &self.message {
+            return format!("{}: {}", &self.code, msg);
+        }
+        self.code.clone()
     }
 }

@@ -1,5 +1,5 @@
 [package]
-name = "purewasm-module"
+name = "wasmledger-example"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,5 +12,5 @@ opt-level = "z"
 strip = "symbols"
 
 [dependencies]
-purewasm-bindgen = { path = "../../bindgen", features = ["cbor"]}
+wasmledger-bindgen = { workspace = true, default-features = false, features = ["cbor"]}
 serde = { workspace = true, default-features = false, features = ["derive", "alloc"] }

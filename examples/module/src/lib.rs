@@ -1,7 +1,8 @@
 #![no_main]
 #![cfg_attr(not(test), no_std)]
 extern crate alloc;
-use purewasm_bindgen::prelude::*;
+
+use wasmledger_bindgen::prelude::*;
 
 use alloc::{format, string::String, vec::Vec};
 use serde::{Deserialize, Serialize};
@@ -44,10 +45,10 @@ pub enum UserEvent {
     Deleted(UserDeleteddEvent),
 }
 
-#[purewasm_bindgen]
-pub fn create(input: CreateUserInput, signers: Vec<String>) -> Result<(), WasmError> {
+#[wasmledger_bindgen]
+pub fn create<H: Host>(host: H, input: CreateUserInput) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
-    let exist = get!(key, User);
+    let exist: Option<User> = host.get(&key)?;
     if exist.is_some() {
         return Err(WasmError::code("USER_EXIST"));
     }
@@ -63,15 +64,15 @@ pub fn create(input: CreateUserInput, signers: Vec<String>) -> Result<(), WasmEr
         birthday: input.birthday,
         events: events,
     };
-    put!(&key, user);
+    host.put(&key, &user)?;
     Ok(())
 }
 
 
-#[purewasm_bindgen]
-pub fn delete(input: DeleteUserInput, signers: Vec<String>) -> Result<(), WasmError> {
+//#[wasmledger_bindgen]
+pub fn delete<H: Host>(host: H, input: DeleteUserInput) -> Result<(), WasmError> {
     let key = format!("/users/{}", input.username);
-    let exist = get!(key, User);
+    let exist: Option<User> = host.get(&key)?;
     if let Some(mut user) = exist {
         // check if user already deleted
         if user.events.iter().any(|e| match e {
@@ -83,7 +84,7 @@ pub fn delete(input: DeleteUserInput, signers: Vec<String>) -> Result<(), WasmEr
         user.events.push(UserEvent::Deleted(UserDeleteddEvent {
             at: input.deleted_at,
         }));
-        put!(&key, user);
+        host.put(&key, &user)?;
         return Ok(());
     }
     Err(WasmError::code("NOT_FOUND"))

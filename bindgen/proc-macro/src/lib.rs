@@ -1,12 +1,65 @@
+use proc_macro::TokenStream;
+use quote::quote;
+use syn::{parse_macro_input, ItemFn, PatType};
+
+#[proc_macro_attribute]
+pub fn wasmledger_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
+    let function = parse_macro_input!(input as ItemFn);
+    let function_name = &function.sig.ident;
+
+    if function.sig.inputs.len() != 2 {
+        return TokenStream::from(quote! {
+            compile_error!("Expected two arguments in the function signature");
+        });
+    }
+    let input_type = match &function.sig.inputs[1] {
+        syn::FnArg::Typed(PatType { ty, .. }) => ty,
+        _ => unreachable!(),
+    };
+
+    let output = quote! {
+        pub mod #function_name {
+            use super::*;
+            mod inner {
+                use super::*;
+                #function
+            }
+
+            #[no_mangle]
+            pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> i32 {
+                let handle_fn = |ptr: *mut u8, len: i32| -> Result<(), WasmError> {
+                    let host = HostImpl {};
+                    let memory = WasmMemory {
+                        codec: CodecImpl {},
+                    };
+                    let payload: #input_type = unsafe { memory.from_memory(ptr, len)? };
+                    inner::#function_name(host, payload)
+                };
+                let result = handle_fn(ptr, len);
+                unsafe { drop(Box::from_raw(ptr)); }
+                match result {
+                    Ok(_) => 1,
+                    Err(err) => {
+                        HostImpl {}.log_error(&err.to_string());
+                        return 0;
+                    },
+                }
+            }
+        }
+    };
+    output.into()
+}
+
+/*
 use quote::quote;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, ItemFn, PatType};
 
 #[proc_macro_attribute]
-pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn wasmledger_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
     let function = parse_macro_input!(input as ItemFn);
     let function_name = &function.sig.ident;
-    
+
     if function.sig.inputs.len() != 2 {
         return TokenStream::from(quote! {
             compile_error!("Expected two arguments in the function signature");
@@ -28,7 +81,7 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
             #[no_mangle]
             pub unsafe extern "C" fn #function_name(ptr: *mut u8, len: i32) -> (i32, i32) {
                 let handle_fn = |ptr: *mut u8, len: i32| -> Result<(), WasmError> {
-                    unsafe {     
+                    unsafe {
                         let msg = core::slice::from_raw_parts(ptr, len as usize);
                         let payload_len = &msg[..4];
                         let payload_len = u32::from_le_bytes(payload_len.try_into().unwrap());
@@ -69,3 +122,7 @@ pub fn purewasm_bindgen(_args: TokenStream, input: TokenStream) -> TokenStream {
     };
     output.into()
 }
+
+
+
+*/

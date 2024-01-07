@@ -10,3 +10,9 @@ pub trait Codec {
 
     fn from_bytes<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, WasmError>;
 }
+
+#[cfg(feature = "json")]
+pub(crate) mod json;
+
+#[cfg(feature = "cbor")]
+pub(crate) mod cbor;

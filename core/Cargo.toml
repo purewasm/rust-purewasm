@@ -1,16 +1,17 @@
 [package]
-name = "purewasm-core"
+name = "wasmledger-core"
 version = "0.1.0"
 edition = "2021"
-description = "Pure WASM bindings"
+description = "Wasm Ledger Core"
 authors = ["adem caglin<adem.caglin@gmail.com>"]
 license = "Apache-2.0"
-repository = "https://github.com/purewasm/rust-purewasm"
+repository = "https://github.com/purewasm/rust-wasmledger"
 readme = "README.md"
-keywords = ["idp2p", "wasm", "webassembly", "purewasm"]
+keywords = ["wasmledger", "wasm", "webassembly", "wasmtime", "purewasm"]
 categories = ["webassembly"]
 
 [dependencies]
+wasmledger-bindgen ={ workspace = true, default-features = false, features = ["cbor"] }
 serde = { workspace = true, default-features = false, features = [
     "derive",
     "alloc",

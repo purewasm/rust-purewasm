@@ -7,5 +7,7 @@ pub enum RuntimeError {
     #[error(transparent)]
     AnyhowError(#[from] anyhow::Error),
     #[error("Wasm error: {0}")]
-    WasmError(String)
+    WasmError(String),
+    #[error("None error")]
+    NoneError
 }
